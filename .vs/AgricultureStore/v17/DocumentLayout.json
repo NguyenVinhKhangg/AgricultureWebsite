@@ -3,6 +3,54 @@
   "WorkspaceRootPath": "D:\\Personal_project\\AgricultureStore\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|d:\\personal_project\\agriculturestore\\agriculturebackend\\data\\agriculturedbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|solutionrelative:agriculturebackend\\data\\agriculturedbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|d:\\personal_project\\agriculturestore\\agriculturebackend\\models\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|solutionrelative:agriculturebackend\\models\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|d:\\personal_project\\agriculturestore\\agriculturebackend\\models\\orderdetail.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|solutionrelative:agriculturebackend\\models\\orderdetail.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|d:\\personal_project\\agriculturestore\\agriculturebackend\\models\\order.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|solutionrelative:agriculturebackend\\models\\order.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|d:\\personal_project\\agriculturestore\\agriculturebackend\\models\\coupon.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|solutionrelative:agriculturebackend\\models\\coupon.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|d:\\personal_project\\agriculturestore\\agriculturebackend\\models\\category.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|solutionrelative:agriculturebackend\\models\\category.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|d:\\personal_project\\agriculturestore\\agriculturebackend\\models\\cartitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|solutionrelative:agriculturebackend\\models\\cartitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|d:\\personal_project\\agriculturestore\\agriculturebackend\\models\\review.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|solutionrelative:agriculturebackend\\models\\review.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|d:\\personal_project\\agriculturestore\\agriculturebackend\\models\\productvariant.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|solutionrelative:agriculturebackend\\models\\productvariant.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|d:\\personal_project\\agriculturestore\\agriculturebackend\\models\\useraddress.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|solutionrelative:agriculturebackend\\models\\useraddress.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|d:\\personal_project\\agriculturestore\\agriculturebackend\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|solutionrelative:agriculturebackend\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|d:\\personal_project\\agriculturestore\\agriculturebackend\\models\\role.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|solutionrelative:agriculturebackend\\models\\role.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|d:\\personal_project\\agriculturestore\\agriculturebackend\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{35948A79-4526-4D88-852A-97BA464C2437}|AgricultureBackEnd\\AgricultureBackEnd.csproj|solutionrelative:agriculturebackend\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
@@ -107,6 +155,162 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "AgricultureDbContext.cs",
+              "DocumentMoniker": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Data\\AgricultureDbContext.cs",
+              "RelativeDocumentMoniker": "AgricultureBackEnd\\Data\\AgricultureDbContext.cs",
+              "ToolTip": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Data\\AgricultureDbContext.cs",
+              "RelativeToolTip": "AgricultureBackEnd\\Data\\AgricultureDbContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-13T07:37:26.537Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Coupon.cs",
+              "DocumentMoniker": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Models\\Coupon.cs",
+              "RelativeDocumentMoniker": "AgricultureBackEnd\\Models\\Coupon.cs",
+              "ToolTip": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Models\\Coupon.cs",
+              "RelativeToolTip": "AgricultureBackEnd\\Models\\Coupon.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-13T07:27:06.916Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Order.cs",
+              "DocumentMoniker": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Models\\Order.cs",
+              "RelativeDocumentMoniker": "AgricultureBackEnd\\Models\\Order.cs",
+              "ToolTip": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Models\\Order.cs",
+              "RelativeToolTip": "AgricultureBackEnd\\Models\\Order.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAuwA4AAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-13T07:28:44.433Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "OrderDetail.cs",
+              "DocumentMoniker": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Models\\OrderDetail.cs",
+              "RelativeDocumentMoniker": "AgricultureBackEnd\\Models\\OrderDetail.cs",
+              "ToolTip": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Models\\OrderDetail.cs",
+              "RelativeToolTip": "AgricultureBackEnd\\Models\\OrderDetail.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-13T07:31:21.525Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Product.cs",
+              "DocumentMoniker": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Models\\Product.cs",
+              "RelativeDocumentMoniker": "AgricultureBackEnd\\Models\\Product.cs",
+              "ToolTip": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Models\\Product.cs",
+              "RelativeToolTip": "AgricultureBackEnd\\Models\\Product.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-13T07:21:47.055Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Category.cs",
+              "DocumentMoniker": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Models\\Category.cs",
+              "RelativeDocumentMoniker": "AgricultureBackEnd\\Models\\Category.cs",
+              "ToolTip": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Models\\Category.cs",
+              "RelativeToolTip": "AgricultureBackEnd\\Models\\Category.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAABYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-13T07:17:00.049Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "CartItem.cs",
+              "DocumentMoniker": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Models\\CartItem.cs",
+              "RelativeDocumentMoniker": "AgricultureBackEnd\\Models\\CartItem.cs",
+              "ToolTip": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Models\\CartItem.cs",
+              "RelativeToolTip": "AgricultureBackEnd\\Models\\CartItem.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-13T07:25:51.182Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Review.cs",
+              "DocumentMoniker": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Models\\Review.cs",
+              "RelativeDocumentMoniker": "AgricultureBackEnd\\Models\\Review.cs",
+              "ToolTip": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Models\\Review.cs",
+              "RelativeToolTip": "AgricultureBackEnd\\Models\\Review.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-13T07:15:03.175Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "ProductVariant.cs",
+              "DocumentMoniker": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Models\\ProductVariant.cs",
+              "RelativeDocumentMoniker": "AgricultureBackEnd\\Models\\ProductVariant.cs",
+              "ToolTip": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Models\\ProductVariant.cs",
+              "RelativeToolTip": "AgricultureBackEnd\\Models\\ProductVariant.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAowBEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-13T07:24:04.953Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "UserAddress.cs",
+              "DocumentMoniker": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Models\\UserAddress.cs",
+              "RelativeDocumentMoniker": "AgricultureBackEnd\\Models\\UserAddress.cs",
+              "ToolTip": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Models\\UserAddress.cs",
+              "RelativeToolTip": "AgricultureBackEnd\\Models\\UserAddress.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-13T07:15:25.157Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "User.cs",
+              "DocumentMoniker": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Models\\User.cs",
+              "RelativeDocumentMoniker": "AgricultureBackEnd\\Models\\User.cs",
+              "ToolTip": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Models\\User.cs",
+              "RelativeToolTip": "AgricultureBackEnd\\Models\\User.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAowAsAAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-13T07:11:02.464Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Role.cs",
+              "DocumentMoniker": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Models\\Role.cs",
+              "RelativeDocumentMoniker": "AgricultureBackEnd\\Models\\Role.cs",
+              "ToolTip": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Models\\Role.cs",
+              "RelativeToolTip": "AgricultureBackEnd\\Models\\Role.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-13T07:10:20.638Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
               "Title": "appsettings.json",
               "DocumentMoniker": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\appsettings.json",
               "RelativeDocumentMoniker": "AgricultureBackEnd\\appsettings.json",
@@ -119,7 +323,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 13,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\Personal_project\\AgricultureStore\\AgricultureBackEnd\\Program.cs",
               "RelativeDocumentMoniker": "AgricultureBackEnd\\Program.cs",

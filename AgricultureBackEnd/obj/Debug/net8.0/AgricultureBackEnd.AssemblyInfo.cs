@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AgricultureBackEnd")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fa31926da994869103c5fd1a359ee6569d459f33")]
 [assembly: System.Reflection.AssemblyProductAttribute("AgricultureBackEnd")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AgricultureBackEnd")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
