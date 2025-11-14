@@ -4,7 +4,7 @@
     {
         public int VariantId { get; set; }
         public int ProductId { get; set; }
-        public string? VariantName { get; set; } = string.Empty;
+        public string? VariantName { get; set; } 
         public decimal Price { get; set; }
         public int StockQuantity { get; set; }
         public bool IsActive { get; set; } = true;
