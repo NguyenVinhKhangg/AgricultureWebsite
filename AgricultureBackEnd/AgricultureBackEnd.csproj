@@ -22,11 +22,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\" />
+    <Folder Include="Controllers\" />
     <Folder Include="Migrations\" />
+    <Folder Include="Repositories\" />
     <Folder Include="Validations\" />
     <Folder Include="Services\" />
-    <Folder Include="Repositories\" />
   </ItemGroup>
 
 </Project>
