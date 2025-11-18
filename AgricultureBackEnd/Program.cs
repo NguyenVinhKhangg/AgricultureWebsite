@@ -2,6 +2,8 @@
 using AgricultureBackEnd.Profiles;
 using AgricultureBackEnd.Repositories.Implement;
 using AgricultureBackEnd.Repositories.Interface;
+using AgricultureBackEnd.Services.Implement;
+using AgricultureBackEnd.Services.Interface;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -40,6 +42,19 @@ namespace AgricultureBackEnd
 
             // Unit of Work Pattern
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+
+            // Service Layer
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<IProductVariantService, ProductVariantService>();
+            builder.Services.AddScoped<ICartService, CartService>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
+            builder.Services.AddScoped<IReviewService, ReviewService>();
+            builder.Services.AddScoped<ICouponService, CouponService>();
+            builder.Services.AddScoped<IUserAddressService, UserAddressService>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
