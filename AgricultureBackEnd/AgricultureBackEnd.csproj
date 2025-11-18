@@ -26,7 +26,6 @@
     <Folder Include="Controllers\" />
     <Folder Include="Migrations\" />
     <Folder Include="Validations\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>
