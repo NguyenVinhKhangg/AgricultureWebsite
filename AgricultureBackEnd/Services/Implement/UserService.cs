@@ -193,7 +193,7 @@ namespace AgricultureBackEnd.Services.Implement
             }
         }
 
-        public async Task<bool> ChangePasswordAsync(int userId, string oldPassword, string newPassword)
+        public async Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto changePasswordDto)
         {
             try
             {
@@ -206,13 +206,13 @@ namespace AgricultureBackEnd.Services.Implement
                     return false;
                 }
 
-                if (!BCrypt.Net.BCrypt.Verify(oldPassword, user.PasswordHash))
+                if (!BCrypt.Net.BCrypt.Verify(changePasswordDto.CurrentPassword, user.PasswordHash))
                 {
                     _logger.LogWarning("Invalid old password for user: {UserId}", userId);
                     return false;
                 }
 
-                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(changePasswordDto.NewPassword);
                 await _unitOfWork.Users.UpdateAsync(user);
                 await _unitOfWork.SaveChangesAsync();
 
