@@ -92,6 +92,11 @@ namespace AgricultureBackEnd
                 app.MapControllers();
 
                 Log.Information("Application started successfully");
+                
+                app.Lifetime.ApplicationStarted.Register(() =>
+                {
+                    Log.Information("Listening on: {Urls}", string.Join(", ", app.Urls));
+                });
                 app.Run();
             }
             catch (Exception ex)
