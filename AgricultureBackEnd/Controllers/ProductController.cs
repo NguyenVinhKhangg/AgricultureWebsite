@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AgricultureBackEnd.DTOs.ProductDTOs;
+using AgricultureBackEnd.Services.Interface;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AgricultureBackEnd.Controllers
 {
@@ -80,12 +83,12 @@ namespace AgricultureBackEnd.Controllers
             }
         }
 
-        [HttpGet("featured")]
-        public async Task<ActionResult<IEnumerable<ProductDto>>> GetFeaturedProducts()
+        [HttpGet("featured/{count?}")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetFeaturedProducts(int count)
         {
             try
             {
-                var products = await _productService.GetFeaturedProductsAsync();
+                var products = await _productService.GetFeaturedProductsAsync(count);
                 return Ok(products);
             }
             catch (Exception ex)
@@ -101,7 +104,7 @@ namespace AgricultureBackEnd.Controllers
             try
             {
                 var newProduct = await _productService.CreateProductAsync(createDto);
-                return CreatedAtAction(nameof(GetProductById), new { id = newProduct.Id }, newProduct);
+                return CreatedAtAction(nameof(GetProductById), new { id = newProduct.ProductId }, newProduct);
             }
             catch (Exception ex)
             {
