@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AgricultureBackEnd.DTOs.UserAddressDTOs;
+using AgricultureBackEnd.Services.Interface;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AgricultureBackEnd.Controllers
 {
@@ -21,7 +24,7 @@ namespace AgricultureBackEnd.Controllers
         {
             try
             {
-                var addresses = await _userAddressService.GetAddressesByUserIdAsync(userId);
+                var addresses = await _userAddressService.GetAddressByIdAsync(userId);
                 return Ok(addresses);
             }
             catch (Exception ex)
@@ -32,9 +35,9 @@ namespace AgricultureBackEnd.Controllers
         }
 
         [HttpGet("user/{userId}/default")]
-        public async Task<IActionResult<UserAddressDto>> GetUserDefaultAddress(int userId){
+        public async Task<ActionResult<UserAddressDto>> GetUserDefaultAddress(int userId){
             try{
-                var address = await _userAddressService.GetUserDefaultAddressAsync(userId);
+                var address = await _userAddressService.GetDefaultAddressAsync(userId);
                 if(address == null){
                     return NotFound($"Default address for user with ID {userId} not found");
                 }
@@ -51,7 +54,7 @@ namespace AgricultureBackEnd.Controllers
         {
             try
             {
-                var newAddress = await _userAddressService.CreateUserAddressAsync(userId, createDto);
+                var newAddress = await _userAddressService.CreateAddressAsync(userId, createDto);
                 return CreatedAtAction(nameof(GetAddressesByUserId), new { userId = userId }, newAddress);
             }
             catch (Exception ex)
@@ -66,7 +69,7 @@ namespace AgricultureBackEnd.Controllers
         {
             try
             {
-                var result = await _userAddressService.UpdateUserAddressAsync(id, updateDto);
+                var result = await _userAddressService.UpdateAddressAsync(id, updateDto);
                 if (!result)
                 {
                     return NotFound($"Address with ID {id} not found");
@@ -85,7 +88,7 @@ namespace AgricultureBackEnd.Controllers
         {
             try
             {
-                var result = await _userAddressService.DeleteUserAddressAsync(id);
+                var result = await _userAddressService.DeleteAddressAsync(id);
                 if (!result)
                 {
                     return NotFound($"Address with ID {id} not found");
@@ -104,7 +107,7 @@ namespace AgricultureBackEnd.Controllers
         {
             try
             {
-                var result = await _userAddressService.SetDefaultUserAddressAsync(userId, addressId);
+                var result = await _userAddressService.SetDefaultAddressAsync(userId, addressId);
                 if (!result)
                 {
                     return NotFound($"Address with ID {addressId} for user with ID {userId} not found");

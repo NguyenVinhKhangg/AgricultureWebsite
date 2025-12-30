@@ -119,7 +119,7 @@ namespace AgricultureBackEnd.Controllers
             try
             {
                 var updatedProduct = await _productService.UpdateProductAsync(id, updateDto);
-                if (updatedProduct == null)
+                if (updatedProduct == false)
                 {
                     return NotFound($"Product with ID {id} not found");
                 }
