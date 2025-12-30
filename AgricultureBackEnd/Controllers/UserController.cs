@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using AgricultureBackEnd.Services.Interface;
-using AgricultureBackEnd.DTOs.UserDTOs;
+using AgricultureStore.Application.Interfaces;
+using AgricultureStore.Application.DTOs.UserDTOs;
 
 namespace AgricultureBackEnd.Controllers
 {

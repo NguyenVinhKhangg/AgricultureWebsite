@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AgricultureBackEnd.DTOs.CartDTOs;
-using AgricultureBackEnd.Services.Interface;
+using AgricultureStore.Application.DTOs.CartDTOs;
+using AgricultureStore.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 namespace AgricultureBackEnd.Controllers
 {
