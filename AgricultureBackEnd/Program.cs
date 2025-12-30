@@ -1,8 +1,9 @@
-using AgricultureBackEnd.Profiles;
-using AgricultureBackEnd.Repositories.Implement;
-using AgricultureBackEnd.Repositories.Interface;
-using AgricultureBackEnd.Services.Implement;
-using AgricultureBackEnd.Services.Interface;
+using AgricultureStore.Application.Mappings;
+using AgricultureStore.Application.Interfaces;
+using AgricultureStore.Application.Services;
+using AgricultureStore.Domain.Interfaces;
+using AgricultureStore.Infrastructure.Data;
+using AgricultureStore.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -39,7 +40,7 @@ namespace AgricultureBackEnd
 
                 // Add services to the container.
                 builder.Services.AddControllers();
-                builder.Services.AddDbContext<Data.AgricultureDbContext>(options =>
+                builder.Services.AddDbContext<AgricultureDbContext>(options =>
                     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
                 builder.Services.AddEndpointsApiExplorer();

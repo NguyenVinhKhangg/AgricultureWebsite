@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AgricultureBackEnd.DTOs.UserAddressDTOs;
-using AgricultureBackEnd.Services.Interface;
+using AgricultureStore.Application.DTOs.UserAddressDTOs;
+using AgricultureStore.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AgricultureBackEnd.Controllers
