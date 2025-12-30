@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AgricultureBackEnd.DTOs.CategoryDTOs;
+using AgricultureBackEnd.Services.Interface;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AgricultureBackEnd.Controllers
 {
@@ -70,7 +73,7 @@ namespace AgricultureBackEnd.Controllers
         {
             try
             {
-                var subcategories = await _categoryService.GetSubcategoriesAsync(id);
+                var subcategories = await _categoryService.GetWithSubCategoriesAsync(id);
                 return Ok(subcategories);
             }
             catch (Exception ex)
@@ -94,18 +97,18 @@ namespace AgricultureBackEnd.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
-
+        
         [HttpPut("{id}")]
-        pubic async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCategoryDto updateDto)
+        public async Task<ActionResult<CategoryDto>> UpdateCategory(int id, [FromBody] UpdateCategoryDto updateDto)
         {
             try
             {
-                var result = await _categoryService.UpdateCategoryAsync(id, updateDto);
-                if (!result)
+                var updatedCategory = await _categoryService.UpdateCategoryAsync(id, updateDto);
+                if (updatedCategory == false)
                 {
                     return NotFound($"Category with ID {id} not found");
                 }
-                return NoContent();
+                return Ok(updatedCategory);
             }
             catch (Exception ex)
             {

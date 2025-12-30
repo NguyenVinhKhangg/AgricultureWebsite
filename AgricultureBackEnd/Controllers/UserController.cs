@@ -114,7 +114,7 @@ namespace AgricultureBackEnd.Controllers
             try
             {
                 var updatedUser = await _userService.UpdateUserAsync(id, userUpdateDto);
-                if (updatedUser == null)
+                if (updatedUser == false)
                 {
                     return NotFound($"User with ID {id} not found");
                 }
