@@ -22,12 +22,12 @@ namespace AgricultureBackEnd.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<ReviewDto>> GetAllReviews()
+        public async Task<ActionResult<IEnumerable<ReviewDto>>> GetAllReviews()
         {
             _logger.LogInformation("Received request to get all reviews");
             var reviews = await _reviewService.GetAllReviewsAsync();
             _logger.LogInformation("Returning {Count} reviews", reviews.Count());
-            return reviews;
+            return Ok(reviews);
         }
 
         [HttpGet("{id}")]
