@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AgricultureBackEnd.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
