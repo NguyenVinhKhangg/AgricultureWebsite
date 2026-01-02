@@ -44,8 +44,80 @@ namespace AgricultureBackEnd
                     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
                 builder.Services.AddEndpointsApiExplorer();
-                builder.Services.AddSwaggerGen();
+                builder.Services.AddSwaggerGen( c=>
+                {
+                    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                    {
+                        Title = "Agriculture Store API",
+                        Version = "v1",
+                        Description = "API documentation for the Agriculture Store backend."
+                    });
 
+                    c.AddSecurityDefeinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                    {
+                        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                        Name = "Authorization",
+                        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+                        Scheme = "Bearer"
+                    });
+
+                    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                    {
+                        {
+                            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                            {
+                                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                                {
+                                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                           Array.Empty<string>()
+                        }
+                    });
+                });
+                
+                //Configure JWT Authentication
+                var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+                var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
+
+                builder.Services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options =>
+                {
+                    options.RequireHttpsMetadata = false;
+                    options.SaveToken = true;
+                    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = jwtSettings["Issuer"],
+                        ValidAudience = jwtSettings["Audience"],
+                        IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(key),
+                        ClockSkew = TimeSpan.Zero
+                    };
+                });
+
+
+                // Configure Authorize             
+                builder.Services.AddAuthorization();
+
+                // Configure CORS
+                builder.Services.AddCors(options =>
+                {
+                    options.AddPolicy("AllowAll", builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                               .AllowAnyMethod()
+                               .AllowAnyHeader();
+                    });
+                });
                 // Auto Mapper Configurations
                 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
@@ -61,7 +133,7 @@ namespace AgricultureBackEnd
                 builder.Services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
                 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
                 builder.Services.AddScoped<ICouponRepository, CouponRepository>();
-
+              
                 // Unit of Work Pattern
                 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -75,7 +147,7 @@ namespace AgricultureBackEnd
                 builder.Services.AddScoped<IReviewService, ReviewService>();
                 builder.Services.AddScoped<ICouponService, CouponService>();
                 builder.Services.AddScoped<IUserAddressService, UserAddressService>();
-
+                builder.Services.AddScoped<IAuthService, AuthService>();
                 var app = builder.Build();
 
                 // Add Serilog request logging
@@ -89,6 +161,8 @@ namespace AgricultureBackEnd
                 }
 
                 app.UseHttpsRedirection();
+                app.UseCors("AllowAll");
+                app.UseAuthentication();
                 app.UseAuthorization();
                 app.MapControllers();
 
