@@ -133,7 +133,7 @@ namespace AgricultureBackEnd
                 builder.Services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
                 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
                 builder.Services.AddScoped<ICouponRepository, CouponRepository>();
-              
+                
                 // Unit of Work Pattern
                 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -148,6 +148,11 @@ namespace AgricultureBackEnd
                 builder.Services.AddScoped<ICouponService, CouponService>();
                 builder.Services.AddScoped<IUserAddressService, UserAddressService>();
                 builder.Services.AddScoped<IAuthService, AuthService>();
+
+
+                // Global exception handling
+                builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+                builder.Services.AddProblemDetails();
                 var app = builder.Build();
 
                 // Add Serilog request logging
