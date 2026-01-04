@@ -9,15 +9,15 @@ using Microsoft.AspNetCore.Mvc;
 namespace AgricultureBackEnd.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class ProductVarientController : ControllerBase
+    [Route("api/product-variants")]
+    public class ProductVariantController : ControllerBase
     {
-        private readonly IProductVariantService _productVarientService;
-        private readonly ILogger<ProductVarientController> _logger;
+        private readonly IProductVariantService _productVariantService;
+        private readonly ILogger<ProductVariantController> _logger;
 
-        public ProductVarientController(IProductVariantService productVarientService, ILogger<ProductVarientController> logger)
+        public ProductVariantController(IProductVariantService productVariantService, ILogger<ProductVariantController> logger)
         {
-            _productVarientService = productVarientService;
+            _productVariantService = productVariantService;
             _logger = logger;
         }
 
@@ -27,7 +27,7 @@ namespace AgricultureBackEnd.Controllers
             try
             {
                 _logger.LogInformation("Received request to get all product variants");
-                var variants = await _productVarientService.GetAllVariantsAsync();
+                var variants = await _productVariantService.GetAllVariantsAsync();
                 _logger.LogInformation("Returning {Count} product variants", variants.Count());
                 return Ok(variants.ToList());
             }
@@ -44,7 +44,7 @@ namespace AgricultureBackEnd.Controllers
             try
             {
                 _logger.LogInformation("Received request to get product variant with ID {Id}", id);
-                var variant = await _productVarientService.GetVariantByIdAsync(id);
+                var variant = await _productVariantService.GetVariantByIdAsync(id);
                 if (variant == null)
                 {
                     _logger.LogWarning("Product variant with ID {Id} not found", id);
@@ -60,13 +60,13 @@ namespace AgricultureBackEnd.Controllers
             }
         }
 
-        [HttpGet("productVarient/{productId}")]
+        [HttpGet("by-product/{productId}")]
         public async Task<ActionResult<IEnumerable<ProductVariantDto>>> GetByProductId(int productId)
         {
             try
             {
                 _logger.LogInformation("Received request to get product variants for product ID {ProductId}", productId);
-                var variants = await _productVarientService.GetByProductIdAsync(productId);
+                var variants = await _productVariantService.GetByProductIdAsync(productId);
                 _logger.LogInformation("Returning {Count} product variants for product ID {ProductId}", variants.Count(), productId);
                 return Ok(variants.ToList());
             }
@@ -83,7 +83,7 @@ namespace AgricultureBackEnd.Controllers
             try
             {
                 _logger.LogInformation("Received request to get product variants with low stock below {Threshold}", threshold);
-                var variants = await _productVarientService.GetLowStockVariantsAsync(threshold);
+                var variants = await _productVariantService.GetLowStockVariantsAsync(threshold);
                 _logger.LogInformation("Returning {Count} product variants with low stock below {Threshold}", variants.Count(), threshold);
                 return Ok(variants.ToList());
             }
@@ -100,7 +100,7 @@ namespace AgricultureBackEnd.Controllers
             try
             {
                 _logger.LogInformation("Received request to create a new product variant");
-                var createdVariant = await _productVarientService.CreateVariantAsync(variantDto);
+                var createdVariant = await _productVariantService.CreateVariantAsync(variantDto);
                 _logger.LogInformation("Created new product variant with ID {Id}", createdVariant.VariantId);
                 return CreatedAtAction(nameof(GetVariantById), new { id = createdVariant.VariantId }, createdVariant);
             }
@@ -117,8 +117,8 @@ namespace AgricultureBackEnd.Controllers
             try
             {
                 _logger.LogInformation("Received request to update product variant with ID {Id}", id);
-                var updatedVariant = await _productVarientService.UpdateVariantAsync(id, variantDto);
-                if (updatedVariant == null)
+                var updatedVariant = await _productVariantService.UpdateVariantAsync(id, variantDto);
+                if (!updatedVariant)
                 {
                     _logger.LogWarning("Product variant with ID {Id} not found", id);
                     return NotFound();
@@ -139,7 +139,7 @@ namespace AgricultureBackEnd.Controllers
             try
             {
                 _logger.LogInformation("Received request to update stock for product variant with ID {Id}", id);
-                var updated = await _productVarientService.UpdateStockAsync(id, quantity);
+                var updated = await _productVariantService.UpdateStockAsync(id, quantity);
                 if (!updated)
                 {
                     _logger.LogWarning("Product variant with ID {Id} not found", id);
@@ -161,7 +161,7 @@ namespace AgricultureBackEnd.Controllers
             try
             {
                 _logger.LogInformation("Received request to delete product variant with ID {Id}", id);
-                var deleted = await _productVarientService.DeleteVariantAsync(id);
+                var deleted = await _productVariantService.DeleteVariantAsync(id);
                 if (!deleted)
                 {
                     _logger.LogWarning("Product variant with ID {Id} not found", id);

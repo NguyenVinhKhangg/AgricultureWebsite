@@ -3,7 +3,8 @@ using AgricultureStore.Domain.Entities;
 using AgricultureStore.Domain.Interfaces;
 using AgricultureStore.Application.Interfaces;
 using AutoMapper;
-using Microsoft.Extensions.Logging;
+
+using Microsoft.Extensions.Logging;
 namespace AgricultureStore.Application.Services
 {
     public class ProductService : IProductService
