@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AgricultureStore.Application.DTOs.CouponDTOs;
 using AgricultureStore.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -120,6 +121,7 @@ namespace AgricultureBackEnd.Controllers
         /// Tạo coupon mới
         /// </summary>
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<CouponDto>> CreateCoupon([FromBody] CreateCouponDto createDto)
         {
             try
@@ -150,6 +152,7 @@ namespace AgricultureBackEnd.Controllers
         /// Cập nhật coupon
         /// </summary>
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateCoupon(int id, [FromBody] UpdateCouponDto updateDto)
         {
             try
@@ -177,6 +180,7 @@ namespace AgricultureBackEnd.Controllers
         /// Xóa coupon (soft delete)
         /// </summary>
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteCoupon(int id)
         {
             try

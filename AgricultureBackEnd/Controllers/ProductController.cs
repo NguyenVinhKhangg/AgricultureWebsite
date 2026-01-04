@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AgricultureStore.Application.DTOs.ProductDTOs;
 using AgricultureStore.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AgricultureBackEnd.Controllers
@@ -101,6 +102,7 @@ namespace AgricultureBackEnd.Controllers
         }
         
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ProductDto>> CreateProduct([FromBody] CreateProductDto createDto)
         {
             try
@@ -116,6 +118,7 @@ namespace AgricultureBackEnd.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ProductDto>> UpdateProduct(int id, [FromBody] UpdateProductDto updateDto)
         {
             try
@@ -135,6 +138,7 @@ namespace AgricultureBackEnd.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             try

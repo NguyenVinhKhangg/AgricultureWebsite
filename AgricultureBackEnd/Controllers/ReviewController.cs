@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AgricultureStore.Application.DTOs.ReviewDTOs;
 using AgricultureStore.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AgricultureBackEnd.Controllers
@@ -73,6 +74,7 @@ namespace AgricultureBackEnd.Controllers
         }
 
         [HttpPost("create/{userId}")]
+        [Authorize]
         public async Task<ActionResult<ReviewDto>> CreateReview(int userId, [FromBody] CreateReviewDto createReviewDto)
         {
             _logger.LogInformation("Received request to create a new review");
@@ -83,6 +85,7 @@ namespace AgricultureBackEnd.Controllers
         }
 
         [HttpPut("update/{reviewId}")]
+        [Authorize]
         public async Task<ActionResult> UpdateReview(int reviewId, [FromBody] UpdateReviewDto updateReviewDto)
         {
             _logger.LogInformation("Received request to update review with ID {ReviewId}", reviewId);
@@ -97,6 +100,7 @@ namespace AgricultureBackEnd.Controllers
         }
 
         [HttpDelete("delete/{reviewId}")]
+        [Authorize]
         public async Task<ActionResult> DeleteReview(int reviewId)
         {
             _logger.LogInformation("Received request to delete review with ID {ReviewId}", reviewId);

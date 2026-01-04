@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AgricultureStore.Application.DTOs.ProductVariantDTOs;
 using AgricultureStore.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AgricultureBackEnd.Controllers
@@ -95,6 +96,7 @@ namespace AgricultureBackEnd.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ProductVariantDto>> CreateVariant([FromBody] CreateProductVariantDto variantDto)
         {
             try
@@ -112,6 +114,7 @@ namespace AgricultureBackEnd.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ProductVariantDto>> UpdateVariant(int id, [FromBody] UpdateProductVariantDto variantDto)
         {
             try
@@ -134,6 +137,7 @@ namespace AgricultureBackEnd.Controllers
         }
 
         [HttpPut("updateStock/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateVariantStock(int id, [FromBody] int quantity)
         {
             try
@@ -156,6 +160,7 @@ namespace AgricultureBackEnd.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteVariant(int id)
         {
             try
