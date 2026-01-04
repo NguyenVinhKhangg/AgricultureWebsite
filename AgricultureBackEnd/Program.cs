@@ -168,7 +168,22 @@ namespace AgricultureBackEnd
                 var app = builder.Build();
 
                 // Add Serilog request logging
-                app.UseSerilogRequestLogging();
+                app.UseSerilogRequestLogging(options =>
+                {
+                    options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+                    {
+                        diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
+                        diagnosticContext.Set("UserAgent", httpContext.Request.Headers["User-Agent"].FirstOrDefault());
+                        
+                        if (httpContext.Request.Headers.TryGetValue("X-Correlation-ID", out var correlationId))
+                        {
+                            diagnosticContext.Set("CorrelationId", correlationId.FirstOrDefault());
+                        }
+                    };
+                });
+
+                // Use Correlation ID middleware (should be early in pipeline)
+                app.UseMiddleware<CorrelationIdMiddleware>();
 
                 // Configure the HTTP request pipeline.
                 if (app.Environment.IsDevelopment())
