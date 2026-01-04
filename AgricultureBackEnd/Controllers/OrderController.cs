@@ -6,6 +6,7 @@ namespace AgricultureBackEnd.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
@@ -21,6 +22,7 @@ namespace AgricultureBackEnd.Controllers
         /// Lấy tất cả orders
         /// </summary>
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<OrderListDto>>> GetAllOrders()
         {
             try
@@ -41,6 +43,7 @@ namespace AgricultureBackEnd.Controllers
         /// Lấy order theo ID với details
         /// </summary>
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<OrderDto>> GetOrderById(int id)
         {
             try

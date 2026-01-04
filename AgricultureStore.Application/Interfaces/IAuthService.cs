@@ -9,6 +9,6 @@ namespace AgricultureStore.Application.Interfaces
     public interface IAuthService
     {
         Task<LoginResponseDto> LoginAsync(LoginDto loginDto);
-        Task<string> GenerateJwiTokenAsync(int userId, string username, string roleName);
+        Task<string> GenerateJwtTokenAsync(int userId, string username, string roleName);
     }
 }
