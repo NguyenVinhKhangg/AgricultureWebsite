@@ -11,12 +11,10 @@ namespace AgricultureBackEnd.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
-        private readonly ILogger<OrderController> _logger;
 
-        public OrderController(IOrderService orderService, ILogger<OrderController> logger)
+        public OrderController(IOrderService orderService)
         {
             _orderService = orderService;
-            _logger = logger;
         }
 
         /// <summary>
@@ -26,18 +24,8 @@ namespace AgricultureBackEnd.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<OrderListDto>>> GetAllOrders()
         {
-            try
-            {
-                _logger.LogInformation("Received request to get all orders");
-                var orders = await _orderService.GetAllOrdersAsync();
-                _logger.LogInformation("Returning {Count} orders", orders.Count());
-                return Ok(orders);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while getting all orders");
-                return StatusCode(500, "Internal server error");
-            }
+            var orders = await _orderService.GetAllOrdersAsync();
+            return Ok(orders);
         }
 
         /// <summary>
@@ -47,25 +35,14 @@ namespace AgricultureBackEnd.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<OrderDto>> GetOrderById(int id)
         {
-            try
+            var order = await _orderService.GetOrderByIdAsync(id);
+            
+            if (order == null)
             {
-                _logger.LogInformation("Received request to get order with ID {Id}", id);
-                var order = await _orderService.GetOrderByIdAsync(id);
-                
-                if (order == null)
-                {
-                    _logger.LogWarning("Order with ID {Id} not found", id);
-                    return NotFound($"Order with ID {id} not found");
-                }
-                
-                _logger.LogInformation("Returning order with ID {Id}", id);
-                return Ok(order);
+                return NotFound($"Order with ID {id} not found");
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while getting order with ID {Id}", id);
-                return StatusCode(500, "Internal server error");
-            }
+            
+            return Ok(order);
         }
 
         /// <summary>
@@ -74,18 +51,8 @@ namespace AgricultureBackEnd.Controllers
         [HttpGet("user/{userId}")]
         public async Task<ActionResult<IEnumerable<OrderListDto>>> GetOrdersByUserId(int userId)
         {
-            try
-            {
-                _logger.LogInformation("Received request to get orders for user ID {UserId}", userId);
-                var orders = await _orderService.GetOrdersByUserIdAsync(userId);
-                _logger.LogInformation("Returning {Count} orders for user ID {UserId}", orders.Count(), userId);
-                return Ok(orders);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while getting orders for user ID {UserId}", userId);
-                return StatusCode(500, "Internal server error");
-            }
+            var orders = await _orderService.GetOrdersByUserIdAsync(userId);
+            return Ok(orders);
         }
 
         /// <summary>
@@ -94,18 +61,8 @@ namespace AgricultureBackEnd.Controllers
         [HttpGet("status/{status}")]
         public async Task<ActionResult<IEnumerable<OrderListDto>>> GetOrdersByStatus(string status)
         {
-            try
-            {
-                _logger.LogInformation("Received request to get orders with status {Status}", status);
-                var orders = await _orderService.GetOrdersByStatusAsync(status);
-                _logger.LogInformation("Returning {Count} orders with status {Status}", orders.Count(), status);
-                return Ok(orders);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while getting orders with status {Status}", status);
-                return StatusCode(500, "Internal server error");
-            }
+            var orders = await _orderService.GetOrdersByStatusAsync(status);
+            return Ok(orders);
         }
 
         /// <summary>
@@ -116,9 +73,7 @@ namespace AgricultureBackEnd.Controllers
         {
             try
             {
-                _logger.LogInformation("Received request to create order for user ID {UserId}", userId);
                 var order = await _orderService.CreateOrderAsync(userId, createDto);
-                _logger.LogInformation("Created order with ID {OrderId} for user {UserId}", order.OrderId, userId);
                 
                 return CreatedAtAction(
                     nameof(GetOrderById), 
@@ -128,13 +83,7 @@ namespace AgricultureBackEnd.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                _logger.LogWarning(ex, "Invalid operation while creating order for user {UserId}", userId);
                 return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while creating order for user ID {UserId}", userId);
-                return StatusCode(500, "Internal server error");
             }
         }
 
@@ -144,25 +93,14 @@ namespace AgricultureBackEnd.Controllers
         [HttpPut("{id}/status")]
         public async Task<IActionResult> UpdateOrderStatus(int id, [FromBody] UpdateOrderStatusDto statusDto)
         {
-            try
+            var result = await _orderService.UpdateOrderStatusAsync(id, statusDto.Status);
+            
+            if (!result)
             {
-                _logger.LogInformation("Received request to update status for order ID {OrderId} to {Status}", id, statusDto.Status);
-                var result = await _orderService.UpdateOrderStatusAsync(id, statusDto.Status);
-                
-                if (!result)
-                {
-                    _logger.LogWarning("Order with ID {OrderId} not found for status update", id);
-                    return NotFound($"Order with ID {id} not found");
-                }
-                
-                _logger.LogInformation("Successfully updated status for order ID {OrderId}", id);
-                return NoContent();
+                return NotFound($"Order with ID {id} not found");
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while updating status for order ID {OrderId}", id);
-                return StatusCode(500, "Internal server error");
-            }
+            
+            return NoContent();
         }
 
         /// <summary>
@@ -173,27 +111,18 @@ namespace AgricultureBackEnd.Controllers
         {
             try
             {
-                _logger.LogInformation("Received request to cancel order ID {OrderId}", id);
                 var result = await _orderService.CancelOrderAsync(id);
                 
                 if (!result)
                 {
-                    _logger.LogWarning("Order with ID {OrderId} not found or cannot be cancelled", id);
                     return NotFound($"Order with ID {id} not found or cannot be cancelled");
                 }
                 
-                _logger.LogInformation("Successfully cancelled order ID {OrderId}", id);
                 return NoContent();
             }
             catch (InvalidOperationException ex)
             {
-                _logger.LogWarning(ex, "Cannot cancel order ID {OrderId}", id);
                 return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while cancelling order ID {OrderId}", id);
-                return StatusCode(500, "Internal server error");
             }
         }
 
@@ -205,30 +134,14 @@ namespace AgricultureBackEnd.Controllers
             [FromQuery] DateTime? startDate = null, 
             [FromQuery] DateTime? endDate = null)
         {
-            try
-            {
-                _logger.LogInformation(
-                    "Received request to get total revenue from {StartDate} to {EndDate}", 
-                    startDate, 
-                    endDate
-                );
-                
-                var revenue = await _orderService.GetTotalRevenueAsync(startDate, endDate);
-                
-                _logger.LogInformation("Total revenue: {Revenue:C}", revenue);
-                
-                return Ok(new { 
-                    revenue = revenue,
-                    startDate = startDate,
-                    endDate = endDate,
-                    currency = "VND"
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while calculating total revenue");
-                return StatusCode(500, "Internal server error");
-            }
+            var revenue = await _orderService.GetTotalRevenueAsync(startDate, endDate);
+            
+            return Ok(new { 
+                revenue = revenue,
+                startDate = startDate,
+                endDate = endDate,
+                currency = "VND"
+            });
         }
 
         /// <summary>
@@ -237,31 +150,20 @@ namespace AgricultureBackEnd.Controllers
         [HttpGet("statistics/daily")]
         public async Task<ActionResult> GetDailyStatistics([FromQuery] DateTime date)
         {
-            try
+            var orders = await _orderService.GetAllOrdersAsync();
+            var dailyOrders = orders.Where(o => o.OrderDate.Date == date.Date);
+            
+            var statistics = new
             {
-                _logger.LogInformation("Received request to get daily statistics for {Date}", date);
-                
-                var orders = await _orderService.GetAllOrdersAsync();
-                var dailyOrders = orders.Where(o => o.OrderDate.Date == date.Date);
-                
-                var statistics = new
-                {
-                    date = date.Date,
-                    totalOrders = dailyOrders.Count(),
-                    totalRevenue = dailyOrders.Sum(o => o.TotalAmount),
-                    pendingOrders = dailyOrders.Count(o => o.Status == "Pending"),
-                    completedOrders = dailyOrders.Count(o => o.Status == "Completed"),
-                    cancelledOrders = dailyOrders.Count(o => o.Status == "Cancelled")
-                };
-                
-                _logger.LogInformation("Returning daily statistics for {Date}", date);
-                return Ok(statistics);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while getting daily statistics");
-                return StatusCode(500, "Internal server error");
-            }
+                date = date.Date,
+                totalOrders = dailyOrders.Count(),
+                totalRevenue = dailyOrders.Sum(o => o.TotalAmount),
+                pendingOrders = dailyOrders.Count(o => o.Status == "Pending"),
+                completedOrders = dailyOrders.Count(o => o.Status == "Completed"),
+                cancelledOrders = dailyOrders.Count(o => o.Status == "Cancelled")
+            };
+            
+            return Ok(statistics);
         }
     }
 }
