@@ -4,7 +4,8 @@ using AgricultureStore.Domain.Interfaces;
 using AgricultureStore.Application.Interfaces;
 using AutoMapper;
 using BCrypt.Net;
-using Microsoft.Extensions.Logging;
+
+using Microsoft.Extensions.Logging;
 namespace AgricultureStore.Application.Services
 {
     public class UserService : IUserService

@@ -1,3 +1,5 @@
+using System.Text;
+using AgricultureBackEnd.Middleware;
 using AgricultureStore.Application.Mappings;
 using AgricultureStore.Application.Interfaces;
 using AgricultureStore.Application.Services;
@@ -53,7 +55,7 @@ namespace AgricultureBackEnd
                         Description = "API documentation for the Agriculture Store backend."
                     });
 
-                    c.AddSecurityDefeinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
                     {
                         Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
                         Name = "Authorization",
@@ -111,11 +113,21 @@ namespace AgricultureBackEnd
                 // Configure CORS
                 builder.Services.AddCors(options =>
                 {
-                    options.AddPolicy("AllowAll", builder =>
+                    options.AddPolicy("Development", policy =>
                     {
-                        builder.AllowAnyOrigin()
-                               .AllowAnyMethod()
-                               .AllowAnyHeader();
+                        policy.AllowAnyOrigin()
+                              .AllowAnyMethod()
+                              .AllowAnyHeader();
+                    });
+
+                    options.AddPolicy("Production", policy =>
+                    {
+                        policy.WithOrigins(
+                                builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>()
+                              )
+                              .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH")
+                              .WithHeaders("Authorization", "Content-Type", "Accept")
+                              .AllowCredentials();
                     });
                 });
                 // Auto Mapper Configurations
@@ -166,7 +178,20 @@ namespace AgricultureBackEnd
                 }
 
                 app.UseHttpsRedirection();
-                app.UseCors("AllowAll");
+                
+                // Use CORS based on environment
+                if (app.Environment.IsDevelopment())
+                {
+                    app.UseCors("Development");
+                }
+                else
+                {
+                    app.UseCors("Production");
+                }
+
+                // Use global exception handler
+                app.UseExceptionHandler();
+
                 app.UseAuthentication();
                 app.UseAuthorization();
                 app.MapControllers();

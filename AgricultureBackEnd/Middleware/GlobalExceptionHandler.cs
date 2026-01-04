@@ -1,7 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Net;
+using AgricultureStore.Application.Exceptions;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace AgricultureBackEnd.Middleware
 {
@@ -14,12 +13,9 @@ namespace AgricultureBackEnd.Middleware
             _logger = logger;
         }
 
-        public async ValueTask<bool> TryHandleAsync(Exception exception, HttpContext context, CancellationToken cancellationToken)
+        public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken cancellationToken)
         {
             _logger.LogError(exception, "An unhandled exception occurred.");
-
-            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            context.Response.ContentType = "application/json";
 
             var (statusCode, message) = exception switch
             {
@@ -40,7 +36,7 @@ namespace AgricultureBackEnd.Middleware
                 timestamp = DateTime.UtcNow
             };
 
-            await HttpContext.Response.WriteAsJsonAsync(response, cancellationToken);
+            await context.Response.WriteAsJsonAsync(response, cancellationToken);
             return true;
         }
     }
