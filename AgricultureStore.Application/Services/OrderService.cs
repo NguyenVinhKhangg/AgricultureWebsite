@@ -3,7 +3,8 @@ using AgricultureStore.Domain.Entities;
 using AgricultureStore.Domain.Interfaces;
 using AgricultureStore.Application.Interfaces;
 using AutoMapper;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
+
 namespace AgricultureStore.Application.Services
 {
     public class OrderService : IOrderService
@@ -21,73 +22,38 @@ namespace AgricultureStore.Application.Services
 
         public async Task<IEnumerable<OrderListDto>> GetAllOrdersAsync()
         {
-            try
-            {
-                _logger.LogInformation("Getting all orders");
-                var orders = await _unitOfWork.Orders.GetAllAsync();
-                _logger.LogInformation("Retrieved {Count} orders", orders.Count());
-                return _mapper.Map<IEnumerable<OrderListDto>>(orders);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting all orders");
-                throw;
-            }
+            _logger.LogDebug("Getting all orders");
+            var orders = await _unitOfWork.Orders.GetAllAsync();
+            _logger.LogDebug("Retrieved {Count} orders", orders.Count());
+            return _mapper.Map<IEnumerable<OrderListDto>>(orders);
         }
 
         public async Task<OrderDto?> GetOrderByIdAsync(int id)
         {
-            try
-            {
-                _logger.LogInformation("Getting order with ID: {OrderId}", id);
-                var order = await _unitOfWork.Orders.GetWithDetailsAsync(id);
+            _logger.LogDebug("Getting order with ID: {OrderId}", id);
+            var order = await _unitOfWork.Orders.GetWithDetailsAsync(id);
 
-                if (order == null)
-                {
-                    _logger.LogWarning("Order with ID {OrderId} not found", id);
-                    return null;
-                }
-
-                _logger.LogInformation("Successfully retrieved order: {OrderId}", id);
-                return _mapper.Map<OrderDto>(order);
-            }
-            catch (Exception ex)
+            if (order == null)
             {
-                _logger.LogError(ex, "Error getting order with ID: {OrderId}", id);
-                throw;
+                _logger.LogWarning("Order with ID {OrderId} not found", id);
+                return null;
             }
+
+            return _mapper.Map<OrderDto>(order);
         }
 
         public async Task<IEnumerable<OrderListDto>> GetOrdersByUserIdAsync(int userId)
         {
-            try
-            {
-                _logger.LogInformation("Getting orders for user: {UserId}", userId);
-                var orders = await _unitOfWork.Orders.GetByUserIdAsync(userId);
-                _logger.LogInformation("Retrieved {Count} orders for user {UserId}", orders.Count(), userId);
-                return _mapper.Map<IEnumerable<OrderListDto>>(orders);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting orders for user: {UserId}", userId);
-                throw;
-            }
+            _logger.LogDebug("Getting orders for user: {UserId}", userId);
+            var orders = await _unitOfWork.Orders.GetByUserIdAsync(userId);
+            return _mapper.Map<IEnumerable<OrderListDto>>(orders);
         }
 
         public async Task<IEnumerable<OrderListDto>> GetOrdersByStatusAsync(string status)
         {
-            try
-            {
-                _logger.LogInformation("Getting orders with status: {Status}", status);
-                var orders = await _unitOfWork.Orders.GetByStatusAsync(status);
-                _logger.LogInformation("Retrieved {Count} orders with status {Status}", orders.Count(), status);
-                return _mapper.Map<IEnumerable<OrderListDto>>(orders);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting orders with status: {Status}", status);
-                throw;
-            }
+            _logger.LogDebug("Getting orders with status: {Status}", status);
+            var orders = await _unitOfWork.Orders.GetByStatusAsync(status);
+            return _mapper.Map<IEnumerable<OrderListDto>>(orders);
         }
 
         public async Task<OrderDto> CreateOrderAsync(int userId, CreateOrderDto createDto)
@@ -101,11 +67,8 @@ namespace AgricultureStore.Application.Services
                 var cartItems = await _unitOfWork.CartItems.GetByUserIdAsync(userId);
                 if (!cartItems.Any())
                 {
-                    _logger.LogWarning("Cannot create order - cart is empty for user: {UserId}", userId);
                     throw new InvalidOperationException("Cart is empty");
                 }
-
-                _logger.LogInformation("Processing {Count} cart items", cartItems.Count());
 
                 // Calculate total
                 decimal subtotal = cartItems.Sum(ci => ci.ProductVariant.Price * ci.Quantity);
@@ -114,22 +77,15 @@ namespace AgricultureStore.Application.Services
                 // Apply coupon if provided
                 if (!string.IsNullOrEmpty(createDto.CouponCode))
                 {
-                    _logger.LogInformation("Applying coupon: {CouponCode}", createDto.CouponCode);
                     var coupon = await _unitOfWork.Coupons.GetByCodeAsync(createDto.CouponCode);
                     if (coupon != null && await _unitOfWork.Coupons.ValidateCouponAsync(createDto.CouponCode))
                     {
                         discount = coupon.DiscountValue;
-                        _logger.LogInformation("Coupon applied - Discount: {Discount:C}", discount);
-                    }
-                    else
-                    {
-                        _logger.LogWarning("Invalid or expired coupon: {CouponCode}", createDto.CouponCode);
+                        _logger.LogDebug("Coupon {CouponCode} applied - Discount: {Discount}", createDto.CouponCode, discount);
                     }
                 }
 
                 decimal total = subtotal - discount;
-                _logger.LogInformation("Order totals - Subtotal: {Subtotal:C}, Discount: {Discount:C}, Shipping: {Shipping:C}, Total: {Total:C}",
-                    subtotal, discount, total);
 
                 // Create order
                 var order = new Order
@@ -154,8 +110,6 @@ namespace AgricultureStore.Application.Services
                 await _unitOfWork.Orders.AddAsync(order);
                 await _unitOfWork.SaveChangesAsync();
 
-                _logger.LogInformation("Order created with ID: {OrderId}", order.OrderId);
-
                 // Create order details
                 foreach (var cartItem in cartItems)
                 {
@@ -170,103 +124,76 @@ namespace AgricultureStore.Application.Services
                 }
 
                 await _unitOfWork.SaveChangesAsync();
-                _logger.LogInformation("Order details created for order: {OrderId}", order.OrderId);
 
                 // Clear cart
                 await _unitOfWork.CartItems.ClearCartAsync(userId);
                 await _unitOfWork.SaveChangesAsync();
-                _logger.LogInformation("Cart cleared for user: {UserId}", userId);
 
                 await _unitOfWork.CommitTransactionAsync();
-                _logger.LogInformation("Order transaction committed successfully - Order ID: {OrderId}", order.OrderId);
+                
+                _logger.LogInformation("Order created successfully - OrderId: {OrderId}, UserId: {UserId}, Total: {Total}",
+                    order.OrderId, userId, total);
 
                 var createdOrder = await _unitOfWork.Orders.GetWithDetailsAsync(order.OrderId);
                 return _mapper.Map<OrderDto>(createdOrder);
             }
-            catch (Exception ex)
+            catch
             {
                 await _unitOfWork.RollbackTransactionAsync();
-                _logger.LogError(ex, "Error creating order for user: {UserId} - Transaction rolled back", userId);
+                _logger.LogWarning("Order creation rolled back for user: {UserId}", userId);
                 throw;
             }
         }
 
         public async Task<bool> UpdateOrderStatusAsync(int orderId, string status)
         {
-            try
-            {
-                _logger.LogInformation("Updating order {OrderId} status to: {Status}", orderId, status);
-                var result = await _unitOfWork.Orders.UpdateStatusAsync(orderId, status);
+            _logger.LogDebug("Updating order {OrderId} status to: {Status}", orderId, status);
+            var result = await _unitOfWork.Orders.UpdateStatusAsync(orderId, status);
 
-                if (result)
-                {
-                    _logger.LogInformation("Order status updated successfully - Order: {OrderId}, New Status: {Status}", orderId, status);
-                }
-                else
-                {
-                    _logger.LogWarning("Failed to update order status - Order {OrderId} not found", orderId);
-                }
-
-                return result;
-            }
-            catch (Exception ex)
+            if (result)
             {
-                _logger.LogError(ex, "Error updating order status - Order: {OrderId}", orderId);
-                throw;
+                _logger.LogInformation("Order status updated - OrderId: {OrderId}, Status: {Status}", orderId, status);
             }
+            else
+            {
+                _logger.LogWarning("Order {OrderId} not found for status update", orderId);
+            }
+
+            return result;
         }
 
         public async Task<bool> CancelOrderAsync(int orderId)
         {
-            try
+            _logger.LogDebug("Cancelling order: {OrderId}", orderId);
+
+            var order = await _unitOfWork.Orders.GetByIdAsync(orderId);
+            if (order == null)
             {
-                _logger.LogInformation("Cancelling order: {OrderId}", orderId);
-
-                var order = await _unitOfWork.Orders.GetByIdAsync(orderId);
-                if (order == null)
-                {
-                    _logger.LogWarning("Order {OrderId} not found for cancellation", orderId);
-                    return false;
-                }
-
-                if (order.Status != "Pending")
-                {
-                    _logger.LogWarning("Cannot cancel order {OrderId} - Status is {Status}", orderId, order.Status);
-                    return false;
-                }
-
-                var result = await _unitOfWork.Orders.UpdateStatusAsync(orderId, "Cancelled");
-
-                if (result)
-                {
-                    _logger.LogInformation("Order cancelled successfully: {OrderId}", orderId);
-                }
-
-                return result;
+                _logger.LogWarning("Order {OrderId} not found for cancellation", orderId);
+                return false;
             }
-            catch (Exception ex)
+
+            if (order.Status != "Pending")
             {
-                _logger.LogError(ex, "Error cancelling order: {OrderId}", orderId);
-                throw;
+                _logger.LogWarning("Cannot cancel order {OrderId} - Status is {Status}", orderId, order.Status);
+                return false;
             }
+
+            var result = await _unitOfWork.Orders.UpdateStatusAsync(orderId, "Cancelled");
+            if (result)
+            {
+                _logger.LogInformation("Order cancelled - OrderId: {OrderId}", orderId);
+            }
+
+            return result;
         }
 
         public async Task<decimal> GetTotalRevenueAsync(DateTime? startDate = null, DateTime? endDate = null)
         {
-            try
-            {
-                _logger.LogInformation("Calculating total revenue - StartDate: {StartDate}, EndDate: {EndDate}",
-                    startDate?.ToString("yyyy-MM-dd") ?? "N/A", endDate?.ToString("yyyy-MM-dd") ?? "N/A");
+            _logger.LogDebug("Calculating total revenue - StartDate: {StartDate}, EndDate: {EndDate}",
+                startDate?.ToString("yyyy-MM-dd") ?? "N/A", endDate?.ToString("yyyy-MM-dd") ?? "N/A");
 
-                var revenue = await _unitOfWork.Orders.GetTotalRevenueAsync(startDate, endDate);
-                _logger.LogInformation("Total revenue calculated: {Revenue:C}", revenue);
-                return revenue;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error calculating total revenue");
-                throw;
-            }
+            return await _unitOfWork.Orders.GetTotalRevenueAsync(startDate, endDate);
         }
     }
 }
