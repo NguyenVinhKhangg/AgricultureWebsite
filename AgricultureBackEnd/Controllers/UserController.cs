@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using AgricultureStore.Application.Interfaces;
 using AgricultureStore.Application.DTOs.UserDTOs;
 
@@ -18,6 +19,7 @@ namespace AgricultureBackEnd.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUsers()
         {
             try
@@ -89,6 +91,7 @@ namespace AgricultureBackEnd.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserDto userCreateDto)
         {
             try
@@ -128,6 +131,7 @@ namespace AgricultureBackEnd.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUser(int id)
         {
             try

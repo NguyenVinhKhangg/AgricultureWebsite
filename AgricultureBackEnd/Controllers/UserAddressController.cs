@@ -4,10 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using AgricultureStore.Application.DTOs.UserAddressDTOs;
 using AgricultureStore.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AgricultureBackEnd.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
+    [Authorize]
     public class UserAddressController : ControllerBase
     {
         private readonly IUserAddressService _userAddressService;
