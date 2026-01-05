@@ -5,18 +5,17 @@ namespace AgricultureStore.Application.Interfaces
 {
     public interface IReviewService
     {
-        Task<IEnumerable<ReviewDto>> GetAllReviewsAsync();
+        /// <summary>
+        /// Get all reviews with optional pagination and filtering.
+        /// </summary>
+        Task<PagedResult<ReviewDto>> GetAllReviewsAsync(ReviewFilterParams? filterParams = null);
         Task<ReviewDto?> GetReviewByIdAsync(int id);
-        Task<IEnumerable<ReviewDto>> GetReviewsByProductIdAsync(int productId);
-        Task<IEnumerable<ReviewDto>> GetReviewsByUserIdAsync(int userId);
+        Task<PagedResult<ReviewDto>> GetReviewsByProductIdAsync(int productId, PaginationParams? paginationParams = null);
+        Task<PagedResult<ReviewDto>> GetReviewsByUserIdAsync(int userId, PaginationParams? paginationParams = null);
         Task<double> GetAverageRatingAsync(int productId);
         Task<ReviewDto> CreateReviewAsync(int userId, CreateReviewDto createDto);
         Task<bool> UpdateReviewAsync(int id, UpdateReviewDto updateDto);
         Task<bool> DeleteReviewAsync(int id);
         Task<bool> CanUserReviewProductAsync(int userId, int productId);
-
-        // Paginated methods
-        Task<PagedResult<ReviewDto>> GetReviewsPagedAsync(ReviewFilterParams filterParams);
-        Task<PagedResult<ReviewDto>> GetReviewsByProductIdPagedAsync(int productId, PaginationParams paginationParams);
     }
 }

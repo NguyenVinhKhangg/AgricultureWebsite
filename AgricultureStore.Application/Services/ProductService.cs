@@ -21,11 +21,26 @@ namespace AgricultureStore.Application.Services
             _logger = logger;
         }
 
-        public async Task<IEnumerable<ProductListDto>> GetAllProductsAsync()
+        public async Task<PagedResult<ProductListDto>> GetAllProductsAsync(ProductFilterParams? filterParams = null)
         {
-            _logger.LogDebug("Getting all active products");
-            var products = await _unitOfWork.Products.GetActiveProductsAsync();
-            return _mapper.Map<IEnumerable<ProductListDto>>(products);
+            filterParams ??= new ProductFilterParams();
+
+            _logger.LogDebug("Getting products - Page: {PageNumber}, Size: {PageSize}, Search: {SearchTerm}",
+                filterParams.PageNumber, filterParams.PageSize, filterParams.SearchTerm);
+
+            var (products, totalCount) = await _unitOfWork.Products.GetProductsPagedAsync(
+                filterParams.PageNumber,
+                filterParams.PageSize,
+                filterParams.SearchTerm,
+                filterParams.CategoryId,
+                filterParams.MinPrice,
+                filterParams.MaxPrice,
+                filterParams.SortBy ?? "CreatedAt",
+                filterParams.SortDescending);
+
+            var productDtos = _mapper.Map<IEnumerable<ProductListDto>>(products);
+
+            return new PagedResult<ProductListDto>(productDtos, totalCount, filterParams.PageNumber, filterParams.PageSize);
         }
 
         public async Task<ProductDto?> GetProductByIdAsync(int id)
@@ -42,18 +57,38 @@ namespace AgricultureStore.Application.Services
             return _mapper.Map<ProductDto>(product);
         }
 
-        public async Task<IEnumerable<ProductListDto>> GetProductsByCategoryAsync(int categoryId)
+        public async Task<PagedResult<ProductListDto>> GetProductsByCategoryAsync(int categoryId, PaginationParams? paginationParams = null)
         {
-            _logger.LogDebug("Getting products by category ID: {CategoryId}", categoryId);
-            var products = await _unitOfWork.Products.GetByCategoryAsync(categoryId);
-            return _mapper.Map<IEnumerable<ProductListDto>>(products);
+            paginationParams ??= new PaginationParams();
+
+            _logger.LogDebug("Getting products by category - CategoryId: {CategoryId}, Page: {PageNumber}",
+                categoryId, paginationParams.PageNumber);
+
+            var (products, totalCount) = await _unitOfWork.Products.GetByCategoryPagedAsync(
+                categoryId,
+                paginationParams.PageNumber,
+                paginationParams.PageSize);
+
+            var productDtos = _mapper.Map<IEnumerable<ProductListDto>>(products);
+
+            return new PagedResult<ProductListDto>(productDtos, totalCount, paginationParams.PageNumber, paginationParams.PageSize);
         }
 
-        public async Task<IEnumerable<ProductListDto>> SearchProductsAsync(string searchTerm)
+        public async Task<PagedResult<ProductListDto>> SearchProductsAsync(string searchTerm, PaginationParams? paginationParams = null)
         {
-            _logger.LogDebug("Searching products with term: {SearchTerm}", searchTerm);
-            var products = await _unitOfWork.Products.SearchByNameAsync(searchTerm);
-            return _mapper.Map<IEnumerable<ProductListDto>>(products);
+            paginationParams ??= new PaginationParams();
+
+            _logger.LogDebug("Searching products with term: {SearchTerm}, Page: {PageNumber}", 
+                searchTerm, paginationParams.PageNumber);
+
+            var filterParams = new ProductFilterParams
+            {
+                SearchTerm = searchTerm,
+                PageNumber = paginationParams.PageNumber,
+                PageSize = paginationParams.PageSize
+            };
+
+            return await GetAllProductsAsync(filterParams);
         }
 
         public async Task<IEnumerable<ProductListDto>> GetFeaturedProductsAsync(int count)
@@ -114,41 +149,6 @@ namespace AgricultureStore.Application.Services
 
             _logger.LogInformation("Product soft-deleted - ProductId: {ProductId}", id);
             return true;
-        }
-
-        public async Task<PagedResult<ProductListDto>> GetProductsPagedAsync(ProductFilterParams filterParams)
-        {
-            _logger.LogDebug("Getting paged products - Page: {PageNumber}, Size: {PageSize}, Search: {SearchTerm}",
-                filterParams.PageNumber, filterParams.PageSize, filterParams.SearchTerm);
-
-            var (products, totalCount) = await _unitOfWork.Products.GetProductsPagedAsync(
-                filterParams.PageNumber,
-                filterParams.PageSize,
-                filterParams.SearchTerm,
-                filterParams.CategoryId,
-                filterParams.MinPrice,
-                filterParams.MaxPrice,
-                filterParams.SortBy ?? "CreatedAt",
-                filterParams.SortDescending);
-
-            var productDtos = _mapper.Map<IEnumerable<ProductListDto>>(products);
-
-            return new PagedResult<ProductListDto>(productDtos, totalCount, filterParams.PageNumber, filterParams.PageSize);
-        }
-
-        public async Task<PagedResult<ProductListDto>> GetProductsByCategoryPagedAsync(int categoryId, PaginationParams paginationParams)
-        {
-            _logger.LogDebug("Getting paged products by category - CategoryId: {CategoryId}, Page: {PageNumber}",
-                categoryId, paginationParams.PageNumber);
-
-            var (products, totalCount) = await _unitOfWork.Products.GetByCategoryPagedAsync(
-                categoryId,
-                paginationParams.PageNumber,
-                paginationParams.PageSize);
-
-            var productDtos = _mapper.Map<IEnumerable<ProductListDto>>(products);
-
-            return new PagedResult<ProductListDto>(productDtos, totalCount, paginationParams.PageNumber, paginationParams.PageSize);
         }
     }
 }

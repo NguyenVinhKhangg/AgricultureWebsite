@@ -17,20 +17,13 @@ namespace AgricultureBackEnd.Controllers
             _reviewService = reviewService;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<ReviewDto>>> GetAllReviews()
-        {
-            var reviews = await _reviewService.GetAllReviewsAsync();
-            return Ok(reviews);
-        }
-
         /// <summary>
-        /// Get reviews with pagination and filtering
+        /// Get all reviews with optional pagination and filtering
         /// </summary>
-        [HttpGet("paged")]
-        public async Task<ActionResult<PagedResult<ReviewDto>>> GetReviewsPaged([FromQuery] ReviewFilterParams filterParams)
+        [HttpGet]
+        public async Task<ActionResult<PagedResult<ReviewDto>>> GetAllReviews([FromQuery] ReviewFilterParams? filterParams)
         {
-            var result = await _reviewService.GetReviewsPagedAsync(filterParams);
+            var result = await _reviewService.GetAllReviewsAsync(filterParams);
             return Ok(result);
         }
 
@@ -45,29 +38,27 @@ namespace AgricultureBackEnd.Controllers
             return Ok(review);
         }
 
-        [HttpGet("review/user/{userId}")]
-        public async Task<ActionResult<IEnumerable<ReviewDto>>> GetReviewsByUserId(int userId)
+        /// <summary>
+        /// Get reviews by user with optional pagination
+        /// </summary>
+        [HttpGet("user/{userId}")]
+        public async Task<ActionResult<PagedResult<ReviewDto>>> GetReviewsByUserId(
+            int userId,
+            [FromQuery] PaginationParams? paginationParams)
         {
-            var reviews = await _reviewService.GetReviewsByUserIdAsync(userId);
-            return Ok(reviews);
-        }
-
-        [HttpGet("review/product/{productId}")]
-        public async Task<ActionResult<IEnumerable<ReviewDto>>> GetReviewsByProductId(int productId)
-        {
-            var reviews = await _reviewService.GetReviewsByProductIdAsync(productId);
-            return Ok(reviews);
+            var result = await _reviewService.GetReviewsByUserIdAsync(userId, paginationParams);
+            return Ok(result);
         }
 
         /// <summary>
-        /// Get reviews by product with pagination
+        /// Get reviews by product with optional pagination
         /// </summary>
-        [HttpGet("review/product/{productId}/paged")]
-        public async Task<ActionResult<PagedResult<ReviewDto>>> GetReviewsByProductIdPaged(
-            int productId, 
-            [FromQuery] PaginationParams paginationParams)
+        [HttpGet("product/{productId}")]
+        public async Task<ActionResult<PagedResult<ReviewDto>>> GetReviewsByProductId(
+            int productId,
+            [FromQuery] PaginationParams? paginationParams)
         {
-            var result = await _reviewService.GetReviewsByProductIdPagedAsync(productId, paginationParams);
+            var result = await _reviewService.GetReviewsByProductIdAsync(productId, paginationParams);
             return Ok(result);
         }
 

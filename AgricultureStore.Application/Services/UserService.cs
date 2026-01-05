@@ -22,11 +22,25 @@ namespace AgricultureStore.Application.Services
             _logger = logger;
         }
 
-        public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
+        public async Task<PagedResult<UserDto>> GetAllUsersAsync(UserFilterParams? filterParams = null)
         {
-            _logger.LogDebug("Getting all users");
-            var users = await _unitOfWork.Users.GetAllAsync();
-            return _mapper.Map<IEnumerable<UserDto>>(users);
+            filterParams ??= new UserFilterParams();
+            
+            _logger.LogDebug("Getting users - Page: {PageNumber}, Size: {PageSize}, Search: {SearchTerm}",
+                filterParams.PageNumber, filterParams.PageSize, filterParams.SearchTerm);
+
+            var (users, totalCount) = await _unitOfWork.Users.GetUsersPagedAsync(
+                filterParams.PageNumber,
+                filterParams.PageSize,
+                filterParams.SearchTerm,
+                filterParams.Role,
+                filterParams.IsActive,
+                filterParams.SortBy ?? "CreatedAt",
+                filterParams.SortDescending);
+
+            var userDtos = _mapper.Map<IEnumerable<UserDto>>(users);
+
+            return new PagedResult<UserDto>(userDtos, totalCount, filterParams.PageNumber, filterParams.PageSize);
         }
 
         public async Task<UserDto?> GetUserByIdAsync(int id)
@@ -168,25 +182,6 @@ namespace AgricultureStore.Application.Services
         {
             _logger.LogDebug("Checking if email exists: {Email}", email);
             return await _unitOfWork.Users.EmailExistsAsync(email);
-        }
-
-        public async Task<PagedResult<UserDto>> GetUsersPagedAsync(UserFilterParams filterParams)
-        {
-            _logger.LogDebug("Getting paged users - Page: {PageNumber}, Size: {PageSize}, Search: {SearchTerm}",
-                filterParams.PageNumber, filterParams.PageSize, filterParams.SearchTerm);
-
-            var (users, totalCount) = await _unitOfWork.Users.GetUsersPagedAsync(
-                filterParams.PageNumber,
-                filterParams.PageSize,
-                filterParams.SearchTerm,
-                filterParams.Role,
-                filterParams.IsActive,
-                filterParams.SortBy ?? "CreatedAt",
-                filterParams.SortDescending);
-
-            var userDtos = _mapper.Map<IEnumerable<UserDto>>(users);
-
-            return new PagedResult<UserDto>(userDtos, totalCount, filterParams.PageNumber, filterParams.PageSize);
         }
     }
 }

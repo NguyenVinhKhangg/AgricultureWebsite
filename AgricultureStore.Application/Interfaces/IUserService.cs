@@ -1,12 +1,11 @@
 using AgricultureStore.Application.DTOs.Common;
-using AgricultureStore.Application.DTOs.ProductDTOs;
 using AgricultureStore.Application.DTOs.UserDTOs;
 
 namespace AgricultureStore.Application.Interfaces
 {
     public interface IUserService
     {
-        Task<IEnumerable<UserDto>> GetAllUsersAsync();
+        Task<PagedResult<UserDto>> GetAllUsersAsync(UserFilterParams? filterParams = null);
         Task<UserDto?> GetUserByIdAsync(int id);
         Task<UserDto?> GetByUsernameAsync(string username);
         Task<UserDto?> GetByEmailAsync(string email);
@@ -16,8 +15,5 @@ namespace AgricultureStore.Application.Interfaces
         Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto changePasswordDto);
         Task<bool> UsernameExistsAsync(string username);
         Task<bool> EmailExistsAsync(string email);
-
-        // Paginated methods
-        Task<PagedResult<UserDto>> GetUsersPagedAsync(UserFilterParams filterParams);
     }
 }

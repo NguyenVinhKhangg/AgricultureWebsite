@@ -19,24 +19,13 @@ namespace AgricultureBackEnd.Controllers
         }
 
         /// <summary>
-        /// Lấy tất cả orders
+        /// Get all orders with optional pagination and filtering
         /// </summary>
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<IEnumerable<OrderListDto>>> GetAllOrders()
+        public async Task<ActionResult<PagedResult<OrderListDto>>> GetAllOrders([FromQuery] OrderFilterParams? filterParams)
         {
-            var orders = await _orderService.GetAllOrdersAsync();
-            return Ok(orders);
-        }
-
-        /// <summary>
-        /// Lấy orders với pagination và filtering
-        /// </summary>
-        [HttpGet("paged")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<PagedResult<OrderListDto>>> GetOrdersPaged([FromQuery] OrderFilterParams filterParams)
-        {
-            var result = await _orderService.GetOrdersPagedAsync(filterParams);
+            var result = await _orderService.GetAllOrdersAsync(filterParams);
             return Ok(result);
         }
 
@@ -58,35 +47,27 @@ namespace AgricultureBackEnd.Controllers
         }
 
         /// <summary>
-        /// Lấy orders theo user ID
+        /// Get orders by user ID with optional pagination
         /// </summary>
         [HttpGet("user/{userId}")]
-        public async Task<ActionResult<IEnumerable<OrderListDto>>> GetOrdersByUserId(int userId)
-        {
-            var orders = await _orderService.GetOrdersByUserIdAsync(userId);
-            return Ok(orders);
-        }
-
-        /// <summary>
-        /// Lấy orders theo user ID với pagination
-        /// </summary>
-        [HttpGet("user/{userId}/paged")]
-        public async Task<ActionResult<PagedResult<OrderListDto>>> GetOrdersByUserIdPaged(
+        public async Task<ActionResult<PagedResult<OrderListDto>>> GetOrdersByUserId(
             int userId, 
-            [FromQuery] PaginationParams paginationParams)
+            [FromQuery] PaginationParams? paginationParams)
         {
-            var result = await _orderService.GetOrdersByUserIdPagedAsync(userId, paginationParams);
+            var result = await _orderService.GetOrdersByUserIdAsync(userId, paginationParams);
             return Ok(result);
         }
 
         /// <summary>
-        /// Lấy orders theo status
+        /// Get orders by status with optional pagination
         /// </summary>
         [HttpGet("status/{status}")]
-        public async Task<ActionResult<IEnumerable<OrderListDto>>> GetOrdersByStatus(string status)
+        public async Task<ActionResult<PagedResult<OrderListDto>>> GetOrdersByStatus(
+            string status,
+            [FromQuery] PaginationParams? paginationParams)
         {
-            var orders = await _orderService.GetOrdersByStatusAsync(status);
-            return Ok(orders);
+            var result = await _orderService.GetOrdersByStatusAsync(status, paginationParams);
+            return Ok(result);
         }
 
         /// <summary>
@@ -174,13 +155,19 @@ namespace AgricultureBackEnd.Controllers
         [HttpGet("statistics/daily")]
         public async Task<ActionResult> GetDailyStatistics([FromQuery] DateTime date)
         {
-            var orders = await _orderService.GetAllOrdersAsync();
-            var dailyOrders = orders.Where(o => o.OrderDate.Date == date.Date);
+            var filterParams = new OrderFilterParams
+            {
+                FromDate = date.Date,
+                ToDate = date.Date.AddDays(1).AddTicks(-1),
+                PageSize = 1000 // Get all orders for that day
+            };
+            var result = await _orderService.GetAllOrdersAsync(filterParams);
+            var dailyOrders = result.Items;
             
             var statistics = new
             {
                 date = date.Date,
-                totalOrders = dailyOrders.Count(),
+                totalOrders = result.TotalCount,
                 totalRevenue = dailyOrders.Sum(o => o.TotalAmount),
                 pendingOrders = dailyOrders.Count(o => o.Status == "Pending"),
                 completedOrders = dailyOrders.Count(o => o.Status == "Completed"),

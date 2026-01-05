@@ -21,11 +21,26 @@ namespace AgricultureStore.Application.Services
             _logger = logger;
         }
 
-        public async Task<IEnumerable<ReviewDto>> GetAllReviewsAsync()
+        public async Task<PagedResult<ReviewDto>> GetAllReviewsAsync(ReviewFilterParams? filterParams = null)
         {
-            _logger.LogDebug("Getting all reviews");
-            var reviews = await _unitOfWork.Reviews.GetAllAsync();
-            return _mapper.Map<IEnumerable<ReviewDto>>(reviews);
+            filterParams ??= new ReviewFilterParams();
+
+            _logger.LogDebug("Getting reviews - Page: {PageNumber}, Size: {PageSize}, ProductId: {ProductId}",
+                filterParams.PageNumber, filterParams.PageSize, filterParams.ProductId);
+
+            var (reviews, totalCount) = await _unitOfWork.Reviews.GetReviewsPagedAsync(
+                filterParams.PageNumber,
+                filterParams.PageSize,
+                filterParams.ProductId,
+                filterParams.UserId,
+                filterParams.MinRating,
+                filterParams.MaxRating,
+                filterParams.SortBy ?? "CreatedAt",
+                filterParams.SortDescending);
+
+            var reviewDtos = _mapper.Map<IEnumerable<ReviewDto>>(reviews);
+
+            return new PagedResult<ReviewDto>(reviewDtos, totalCount, filterParams.PageNumber, filterParams.PageSize);
         }
 
         public async Task<ReviewDto?> GetReviewByIdAsync(int id)
@@ -42,18 +57,38 @@ namespace AgricultureStore.Application.Services
             return _mapper.Map<ReviewDto>(review);
         }
 
-        public async Task<IEnumerable<ReviewDto>> GetReviewsByProductIdAsync(int productId)
+        public async Task<PagedResult<ReviewDto>> GetReviewsByProductIdAsync(int productId, PaginationParams? paginationParams = null)
         {
-            _logger.LogDebug("Getting reviews for product: {ProductId}", productId);
-            var reviews = await _unitOfWork.Reviews.GetByProductIdAsync(productId);
-            return _mapper.Map<IEnumerable<ReviewDto>>(reviews);
+            paginationParams ??= new PaginationParams();
+
+            _logger.LogDebug("Getting reviews for product - ProductId: {ProductId}, Page: {PageNumber}",
+                productId, paginationParams.PageNumber);
+
+            var (reviews, totalCount) = await _unitOfWork.Reviews.GetByProductIdPagedAsync(
+                productId,
+                paginationParams.PageNumber,
+                paginationParams.PageSize);
+
+            var reviewDtos = _mapper.Map<IEnumerable<ReviewDto>>(reviews);
+
+            return new PagedResult<ReviewDto>(reviewDtos, totalCount, paginationParams.PageNumber, paginationParams.PageSize);
         }
 
-        public async Task<IEnumerable<ReviewDto>> GetReviewsByUserIdAsync(int userId)
+        public async Task<PagedResult<ReviewDto>> GetReviewsByUserIdAsync(int userId, PaginationParams? paginationParams = null)
         {
-            _logger.LogDebug("Getting reviews by user: {UserId}", userId);
-            var reviews = await _unitOfWork.Reviews.GetByUserIdAsync(userId);
-            return _mapper.Map<IEnumerable<ReviewDto>>(reviews);
+            paginationParams ??= new PaginationParams();
+
+            _logger.LogDebug("Getting reviews by user - UserId: {UserId}, Page: {PageNumber}", 
+                userId, paginationParams.PageNumber);
+
+            var filterParams = new ReviewFilterParams
+            {
+                UserId = userId,
+                PageNumber = paginationParams.PageNumber,
+                PageSize = paginationParams.PageSize
+            };
+
+            return await GetAllReviewsAsync(filterParams);
         }
 
         public async Task<double> GetAverageRatingAsync(int productId)
@@ -119,41 +154,6 @@ namespace AgricultureStore.Application.Services
         {
             _logger.LogDebug("Checking if user {UserId} can review product {ProductId}", userId, productId);
             return !await _unitOfWork.Reviews.HasUserReviewedProductAsync(userId, productId);
-        }
-
-        public async Task<PagedResult<ReviewDto>> GetReviewsPagedAsync(ReviewFilterParams filterParams)
-        {
-            _logger.LogDebug("Getting paged reviews - Page: {PageNumber}, Size: {PageSize}, ProductId: {ProductId}",
-                filterParams.PageNumber, filterParams.PageSize, filterParams.ProductId);
-
-            var (reviews, totalCount) = await _unitOfWork.Reviews.GetReviewsPagedAsync(
-                filterParams.PageNumber,
-                filterParams.PageSize,
-                filterParams.ProductId,
-                filterParams.UserId,
-                filterParams.MinRating,
-                filterParams.MaxRating,
-                filterParams.SortBy ?? "CreatedAt",
-                filterParams.SortDescending);
-
-            var reviewDtos = _mapper.Map<IEnumerable<ReviewDto>>(reviews);
-
-            return new PagedResult<ReviewDto>(reviewDtos, totalCount, filterParams.PageNumber, filterParams.PageSize);
-        }
-
-        public async Task<PagedResult<ReviewDto>> GetReviewsByProductIdPagedAsync(int productId, PaginationParams paginationParams)
-        {
-            _logger.LogDebug("Getting paged reviews for product - ProductId: {ProductId}, Page: {PageNumber}",
-                productId, paginationParams.PageNumber);
-
-            var (reviews, totalCount) = await _unitOfWork.Reviews.GetByProductIdPagedAsync(
-                productId,
-                paginationParams.PageNumber,
-                paginationParams.PageSize);
-
-            var reviewDtos = _mapper.Map<IEnumerable<ReviewDto>>(reviews);
-
-            return new PagedResult<ReviewDto>(reviewDtos, totalCount, paginationParams.PageNumber, paginationParams.PageSize);
         }
     }
 }

@@ -17,22 +17,14 @@ namespace AgricultureBackEnd.Controllers
             _userService = userService;
         }
 
+        /// <summary>
+        /// Get all users with optional pagination and filtering
+        /// </summary>
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUsers()
+        public async Task<ActionResult<PagedResult<UserDto>>> GetAllUsers([FromQuery] UserFilterParams? filterParams)
         {
-            var users = await _userService.GetAllUsersAsync();
-            return Ok(users);
-        }
-
-        /// <summary>
-        /// Get users with pagination and filtering
-        /// </summary>
-        [HttpGet("paged")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<PagedResult<UserDto>>> GetUsersPaged([FromQuery] UserFilterParams filterParams)
-        {
-            var result = await _userService.GetUsersPagedAsync(filterParams);
+            var result = await _userService.GetAllUsersAsync(filterParams);
             return Ok(result);
         }
 
@@ -47,7 +39,7 @@ namespace AgricultureBackEnd.Controllers
             return Ok(user);
         }
 
-        [HttpGet("usename/{username}")]
+        [HttpGet("username/{username}")]
         public async Task<ActionResult<UserDto>> GetUserByUsername(string username)
         {
             var user = await _userService.GetByUsernameAsync(username);
@@ -73,15 +65,8 @@ namespace AgricultureBackEnd.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserDto userCreateDto)
         {
-            try
-            {
-                var createdUser = await _userService.CreateUserAsync(userCreateDto);
-                return CreatedAtAction(nameof(GetUserById), new { id = createdUser.UserId }, createdUser);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var createdUser = await _userService.CreateUserAsync(userCreateDto);
+            return CreatedAtAction(nameof(GetUserById), new { id = createdUser.UserId }, createdUser);
         }
 
         [HttpPut("{id}")]

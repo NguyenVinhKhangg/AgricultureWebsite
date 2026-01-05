@@ -21,12 +21,26 @@ namespace AgricultureStore.Application.Services
             _logger = logger;
         }
 
-        public async Task<IEnumerable<OrderListDto>> GetAllOrdersAsync()
+        public async Task<PagedResult<OrderListDto>> GetAllOrdersAsync(OrderFilterParams? filterParams = null)
         {
-            _logger.LogDebug("Getting all orders");
-            var orders = await _unitOfWork.Orders.GetAllAsync();
-            _logger.LogDebug("Retrieved {Count} orders", orders.Count());
-            return _mapper.Map<IEnumerable<OrderListDto>>(orders);
+            filterParams ??= new OrderFilterParams();
+
+            _logger.LogDebug("Getting orders - Page: {PageNumber}, Size: {PageSize}, Status: {Status}",
+                filterParams.PageNumber, filterParams.PageSize, filterParams.Status);
+
+            var (orders, totalCount) = await _unitOfWork.Orders.GetOrdersPagedAsync(
+                filterParams.PageNumber,
+                filterParams.PageSize,
+                filterParams.Status,
+                filterParams.UserId,
+                filterParams.FromDate,
+                filterParams.ToDate,
+                filterParams.SortBy ?? "OrderDate",
+                filterParams.SortDescending);
+
+            var orderDtos = _mapper.Map<IEnumerable<OrderListDto>>(orders);
+
+            return new PagedResult<OrderListDto>(orderDtos, totalCount, filterParams.PageNumber, filterParams.PageSize);
         }
 
         public async Task<OrderDto?> GetOrderByIdAsync(int id)
@@ -43,18 +57,38 @@ namespace AgricultureStore.Application.Services
             return _mapper.Map<OrderDto>(order);
         }
 
-        public async Task<IEnumerable<OrderListDto>> GetOrdersByUserIdAsync(int userId)
+        public async Task<PagedResult<OrderListDto>> GetOrdersByUserIdAsync(int userId, PaginationParams? paginationParams = null)
         {
-            _logger.LogDebug("Getting orders for user: {UserId}", userId);
-            var orders = await _unitOfWork.Orders.GetByUserIdAsync(userId);
-            return _mapper.Map<IEnumerable<OrderListDto>>(orders);
+            paginationParams ??= new PaginationParams();
+
+            _logger.LogDebug("Getting orders for user - UserId: {UserId}, Page: {PageNumber}",
+                userId, paginationParams.PageNumber);
+
+            var (orders, totalCount) = await _unitOfWork.Orders.GetByUserIdPagedAsync(
+                userId,
+                paginationParams.PageNumber,
+                paginationParams.PageSize);
+
+            var orderDtos = _mapper.Map<IEnumerable<OrderListDto>>(orders);
+
+            return new PagedResult<OrderListDto>(orderDtos, totalCount, paginationParams.PageNumber, paginationParams.PageSize);
         }
 
-        public async Task<IEnumerable<OrderListDto>> GetOrdersByStatusAsync(string status)
+        public async Task<PagedResult<OrderListDto>> GetOrdersByStatusAsync(string status, PaginationParams? paginationParams = null)
         {
-            _logger.LogDebug("Getting orders with status: {Status}", status);
-            var orders = await _unitOfWork.Orders.GetByStatusAsync(status);
-            return _mapper.Map<IEnumerable<OrderListDto>>(orders);
+            paginationParams ??= new PaginationParams();
+
+            _logger.LogDebug("Getting orders with status: {Status}, Page: {PageNumber}", 
+                status, paginationParams.PageNumber);
+
+            var filterParams = new OrderFilterParams
+            {
+                Status = status,
+                PageNumber = paginationParams.PageNumber,
+                PageSize = paginationParams.PageSize
+            };
+
+            return await GetAllOrdersAsync(filterParams);
         }
 
         public async Task<OrderDto> CreateOrderAsync(int userId, CreateOrderDto createDto)
@@ -195,41 +229,6 @@ namespace AgricultureStore.Application.Services
                 startDate?.ToString("yyyy-MM-dd") ?? "N/A", endDate?.ToString("yyyy-MM-dd") ?? "N/A");
 
             return await _unitOfWork.Orders.GetTotalRevenueAsync(startDate, endDate);
-        }
-
-        public async Task<PagedResult<OrderListDto>> GetOrdersPagedAsync(OrderFilterParams filterParams)
-        {
-            _logger.LogDebug("Getting paged orders - Page: {PageNumber}, Size: {PageSize}, Status: {Status}",
-                filterParams.PageNumber, filterParams.PageSize, filterParams.Status);
-
-            var (orders, totalCount) = await _unitOfWork.Orders.GetOrdersPagedAsync(
-                filterParams.PageNumber,
-                filterParams.PageSize,
-                filterParams.Status,
-                filterParams.UserId,
-                filterParams.FromDate,
-                filterParams.ToDate,
-                filterParams.SortBy ?? "OrderDate",
-                filterParams.SortDescending);
-
-            var orderDtos = _mapper.Map<IEnumerable<OrderListDto>>(orders);
-
-            return new PagedResult<OrderListDto>(orderDtos, totalCount, filterParams.PageNumber, filterParams.PageSize);
-        }
-
-        public async Task<PagedResult<OrderListDto>> GetOrdersByUserIdPagedAsync(int userId, PaginationParams paginationParams)
-        {
-            _logger.LogDebug("Getting paged orders for user - UserId: {UserId}, Page: {PageNumber}",
-                userId, paginationParams.PageNumber);
-
-            var (orders, totalCount) = await _unitOfWork.Orders.GetByUserIdPagedAsync(
-                userId,
-                paginationParams.PageNumber,
-                paginationParams.PageSize);
-
-            var orderDtos = _mapper.Map<IEnumerable<OrderListDto>>(orders);
-
-            return new PagedResult<OrderListDto>(orderDtos, totalCount, paginationParams.PageNumber, paginationParams.PageSize);
         }
     }
 }

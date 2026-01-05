@@ -5,17 +5,17 @@ namespace AgricultureStore.Application.Interfaces
 {
     public interface IProductService
     {
-        Task<IEnumerable<ProductListDto>> GetAllProductsAsync();
+        /// <summary>
+        /// Get all products with optional pagination and filtering.
+        /// If filterParams is null, returns first page with default page size.
+        /// </summary>
+        Task<PagedResult<ProductListDto>> GetAllProductsAsync(ProductFilterParams? filterParams = null);
         Task<ProductDto?> GetProductByIdAsync(int id);
-        Task<IEnumerable<ProductListDto>> GetProductsByCategoryAsync(int categoryId);
-        Task<IEnumerable<ProductListDto>> SearchProductsAsync(string searchTerm);
+        Task<PagedResult<ProductListDto>> GetProductsByCategoryAsync(int categoryId, PaginationParams? paginationParams = null);
+        Task<PagedResult<ProductListDto>> SearchProductsAsync(string searchTerm, PaginationParams? paginationParams = null);
         Task<IEnumerable<ProductListDto>> GetFeaturedProductsAsync(int count);
         Task<ProductDto> CreateProductAsync(CreateProductDto createDto);
         Task<bool> UpdateProductAsync(int id, UpdateProductDto updateDto);
         Task<bool> DeleteProductAsync(int id);
-
-        // Paginated methods
-        Task<PagedResult<ProductListDto>> GetProductsPagedAsync(ProductFilterParams filterParams);
-        Task<PagedResult<ProductListDto>> GetProductsByCategoryPagedAsync(int categoryId, PaginationParams paginationParams);
     }
 }

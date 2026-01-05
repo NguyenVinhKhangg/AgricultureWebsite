@@ -17,20 +17,13 @@ namespace AgricultureBackEnd.Controllers
             _productService = productService;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductDto>>> GetAllProducts()
-        {
-            var products = await _productService.GetAllProductsAsync();
-            return Ok(products);
-        }
-
         /// <summary>
-        /// Get products with pagination and filtering
+        /// Get all products with optional pagination and filtering
         /// </summary>
-        [HttpGet("paged")]
-        public async Task<ActionResult<PagedResult<ProductListDto>>> GetProductsPaged([FromQuery] ProductFilterParams filterParams)
+        [HttpGet]
+        public async Task<ActionResult<PagedResult<ProductListDto>>> GetAllProducts([FromQuery] ProductFilterParams? filterParams)
         {
-            var result = await _productService.GetProductsPagedAsync(filterParams);
+            var result = await _productService.GetAllProductsAsync(filterParams);
             return Ok(result);
         }
 
@@ -45,34 +38,32 @@ namespace AgricultureBackEnd.Controllers
             return Ok(product);
         }
 
-        [HttpGet("category/{categoryId}")]
-        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByCategory(int categoryId)
-        {
-            var products = await _productService.GetProductsByCategoryAsync(categoryId);
-            return Ok(products);
-        }
-
         /// <summary>
-        /// Get products by category with pagination
+        /// Get products by category with optional pagination
         /// </summary>
-        [HttpGet("category/{categoryId}/paged")]
-        public async Task<ActionResult<PagedResult<ProductListDto>>> GetProductsByCategoryPaged(
+        [HttpGet("category/{categoryId}")]
+        public async Task<ActionResult<PagedResult<ProductListDto>>> GetProductsByCategory(
             int categoryId, 
-            [FromQuery] PaginationParams paginationParams)
+            [FromQuery] PaginationParams? paginationParams)
         {
-            var result = await _productService.GetProductsByCategoryPagedAsync(categoryId, paginationParams);
+            var result = await _productService.GetProductsByCategoryAsync(categoryId, paginationParams);
             return Ok(result);
         }
 
+        /// <summary>
+        /// Search products with optional pagination
+        /// </summary>
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<ProductDto>>> SearchProducts([FromQuery] string query)
+        public async Task<ActionResult<PagedResult<ProductListDto>>> SearchProducts(
+            [FromQuery] string query,
+            [FromQuery] PaginationParams? paginationParams)
         {
-            var products = await _productService.SearchProductsAsync(query);
-            return Ok(products);
+            var result = await _productService.SearchProductsAsync(query, paginationParams);
+            return Ok(result);
         }
 
         [HttpGet("featured/{count?}")]
-        public async Task<ActionResult<IEnumerable<ProductDto>>> GetFeaturedProducts(int count)
+        public async Task<ActionResult<IEnumerable<ProductListDto>>> GetFeaturedProducts(int count = 10)
         {
             var products = await _productService.GetFeaturedProductsAsync(count);
             return Ok(products);
