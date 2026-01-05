@@ -2,7 +2,7 @@
 
 ## 📌 Mô Tả
 
-Đây là **Presentation Layer** (API Layer) của Agriculture Store, được tổ chức theo **Clean Architecture**.
+**Presentation Layer** (API Layer) của Agriculture Store, được tổ chức theo **Clean Architecture**.
 
 ## 🏗️ Cấu Trúc
 
@@ -34,7 +34,7 @@ AgricultureBackEnd/
 
 3. (Optional) Tạo `appsettings.Development.json` cho môi trường development
 
-**⚠️ Không bao giờ commit file appsettings.json chứa thông tin thật!**
+**⚠️ Không commit file appsettings.json chứa thông tin thật!**
 
 ## 🔗 Dependencies
 
@@ -63,9 +63,4 @@ Application sẽ chạy tại:
 - HTTPS: `https://localhost:5001`
 - Swagger UI: `https://localhost:5001/swagger`
 
-## 📝 Lưu Ý
 
-- ✅ Code đã được migrate sang Clean Architecture
-- ✅ Tất cả business logic nằm trong Application layer
-- ✅ Tất cả data access nằm trong Infrastructure layer
-- ✅ Controllers chỉ chịu trách nhiệm HTTP request/response handling
