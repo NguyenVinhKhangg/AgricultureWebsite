@@ -1,3 +1,4 @@
+using AgricultureStore.Application.DTOs.Common;
 using AgricultureStore.Application.DTOs.ReviewDTOs;
 using AgricultureStore.Domain.Entities;
 using AgricultureStore.Domain.Interfaces;
@@ -118,6 +119,41 @@ namespace AgricultureStore.Application.Services
         {
             _logger.LogDebug("Checking if user {UserId} can review product {ProductId}", userId, productId);
             return !await _unitOfWork.Reviews.HasUserReviewedProductAsync(userId, productId);
+        }
+
+        public async Task<PagedResult<ReviewDto>> GetReviewsPagedAsync(ReviewFilterParams filterParams)
+        {
+            _logger.LogDebug("Getting paged reviews - Page: {PageNumber}, Size: {PageSize}, ProductId: {ProductId}",
+                filterParams.PageNumber, filterParams.PageSize, filterParams.ProductId);
+
+            var (reviews, totalCount) = await _unitOfWork.Reviews.GetReviewsPagedAsync(
+                filterParams.PageNumber,
+                filterParams.PageSize,
+                filterParams.ProductId,
+                filterParams.UserId,
+                filterParams.MinRating,
+                filterParams.MaxRating,
+                filterParams.SortBy ?? "CreatedAt",
+                filterParams.SortDescending);
+
+            var reviewDtos = _mapper.Map<IEnumerable<ReviewDto>>(reviews);
+
+            return new PagedResult<ReviewDto>(reviewDtos, totalCount, filterParams.PageNumber, filterParams.PageSize);
+        }
+
+        public async Task<PagedResult<ReviewDto>> GetReviewsByProductIdPagedAsync(int productId, PaginationParams paginationParams)
+        {
+            _logger.LogDebug("Getting paged reviews for product - ProductId: {ProductId}, Page: {PageNumber}",
+                productId, paginationParams.PageNumber);
+
+            var (reviews, totalCount) = await _unitOfWork.Reviews.GetByProductIdPagedAsync(
+                productId,
+                paginationParams.PageNumber,
+                paginationParams.PageSize);
+
+            var reviewDtos = _mapper.Map<IEnumerable<ReviewDto>>(reviews);
+
+            return new PagedResult<ReviewDto>(reviewDtos, totalCount, paginationParams.PageNumber, paginationParams.PageSize);
         }
     }
 }

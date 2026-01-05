@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using AgricultureStore.Application.Interfaces;
+using AgricultureStore.Application.DTOs.Common;
 using AgricultureStore.Application.DTOs.UserDTOs;
 
 namespace AgricultureBackEnd.Controllers
@@ -22,6 +23,17 @@ namespace AgricultureBackEnd.Controllers
         {
             var users = await _userService.GetAllUsersAsync();
             return Ok(users);
+        }
+
+        /// <summary>
+        /// Get users with pagination and filtering
+        /// </summary>
+        [HttpGet("paged")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<PagedResult<UserDto>>> GetUsersPaged([FromQuery] UserFilterParams filterParams)
+        {
+            var result = await _userService.GetUsersPagedAsync(filterParams);
+            return Ok(result);
         }
 
         [HttpGet("{id}")]

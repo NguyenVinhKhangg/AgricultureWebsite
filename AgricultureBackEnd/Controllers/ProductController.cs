@@ -1,3 +1,4 @@
+using AgricultureStore.Application.DTOs.Common;
 using AgricultureStore.Application.DTOs.ProductDTOs;
 using AgricultureStore.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -23,6 +24,16 @@ namespace AgricultureBackEnd.Controllers
             return Ok(products);
         }
 
+        /// <summary>
+        /// Get products with pagination and filtering
+        /// </summary>
+        [HttpGet("paged")]
+        public async Task<ActionResult<PagedResult<ProductListDto>>> GetProductsPaged([FromQuery] ProductFilterParams filterParams)
+        {
+            var result = await _productService.GetProductsPagedAsync(filterParams);
+            return Ok(result);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductDto>> GetProductById(int id)
         {
@@ -39,6 +50,18 @@ namespace AgricultureBackEnd.Controllers
         {
             var products = await _productService.GetProductsByCategoryAsync(categoryId);
             return Ok(products);
+        }
+
+        /// <summary>
+        /// Get products by category with pagination
+        /// </summary>
+        [HttpGet("category/{categoryId}/paged")]
+        public async Task<ActionResult<PagedResult<ProductListDto>>> GetProductsByCategoryPaged(
+            int categoryId, 
+            [FromQuery] PaginationParams paginationParams)
+        {
+            var result = await _productService.GetProductsByCategoryPagedAsync(categoryId, paginationParams);
+            return Ok(result);
         }
 
         [HttpGet("search")]

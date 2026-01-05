@@ -10,5 +10,15 @@ namespace AgricultureStore.Domain.Interfaces
         Task<IEnumerable<User>> GetByRoleAsync(int roleId);
         Task<bool> UsernameExistsAsync(string username);
         Task<bool> EmailExistsAsync(string email);
+
+        // Paginated methods
+        Task<(IEnumerable<User> Items, int TotalCount)> GetUsersPagedAsync(
+            int pageNumber,
+            int pageSize,
+            string? searchTerm = null,
+            string? role = null,
+            bool? isActive = null,
+            string sortBy = "CreatedAt",
+            bool sortDescending = true);
     }
 }

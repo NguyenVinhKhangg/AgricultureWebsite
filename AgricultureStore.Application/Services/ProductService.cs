@@ -1,3 +1,4 @@
+using AgricultureStore.Application.DTOs.Common;
 using AgricultureStore.Application.DTOs.ProductDTOs;
 using AgricultureStore.Domain.Entities;
 using AgricultureStore.Domain.Interfaces;
@@ -113,6 +114,41 @@ namespace AgricultureStore.Application.Services
 
             _logger.LogInformation("Product soft-deleted - ProductId: {ProductId}", id);
             return true;
+        }
+
+        public async Task<PagedResult<ProductListDto>> GetProductsPagedAsync(ProductFilterParams filterParams)
+        {
+            _logger.LogDebug("Getting paged products - Page: {PageNumber}, Size: {PageSize}, Search: {SearchTerm}",
+                filterParams.PageNumber, filterParams.PageSize, filterParams.SearchTerm);
+
+            var (products, totalCount) = await _unitOfWork.Products.GetProductsPagedAsync(
+                filterParams.PageNumber,
+                filterParams.PageSize,
+                filterParams.SearchTerm,
+                filterParams.CategoryId,
+                filterParams.MinPrice,
+                filterParams.MaxPrice,
+                filterParams.SortBy ?? "CreatedAt",
+                filterParams.SortDescending);
+
+            var productDtos = _mapper.Map<IEnumerable<ProductListDto>>(products);
+
+            return new PagedResult<ProductListDto>(productDtos, totalCount, filterParams.PageNumber, filterParams.PageSize);
+        }
+
+        public async Task<PagedResult<ProductListDto>> GetProductsByCategoryPagedAsync(int categoryId, PaginationParams paginationParams)
+        {
+            _logger.LogDebug("Getting paged products by category - CategoryId: {CategoryId}, Page: {PageNumber}",
+                categoryId, paginationParams.PageNumber);
+
+            var (products, totalCount) = await _unitOfWork.Products.GetByCategoryPagedAsync(
+                categoryId,
+                paginationParams.PageNumber,
+                paginationParams.PageSize);
+
+            var productDtos = _mapper.Map<IEnumerable<ProductListDto>>(products);
+
+            return new PagedResult<ProductListDto>(productDtos, totalCount, paginationParams.PageNumber, paginationParams.PageSize);
         }
     }
 }

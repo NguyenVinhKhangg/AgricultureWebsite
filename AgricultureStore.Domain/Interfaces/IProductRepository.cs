@@ -10,5 +10,21 @@ namespace AgricultureStore.Domain.Interfaces
         Task<Product?> GetWithVariantsAsync(int productId);
         Task<Product?> GetWithDetailsAsync(int productId);
         Task<IEnumerable<Product>> GetFeaturedProductsAsync(int count);
+
+        // Paginated methods
+        Task<(IEnumerable<Product> Items, int TotalCount)> GetProductsPagedAsync(
+            int pageNumber,
+            int pageSize,
+            string? searchTerm = null,
+            int? categoryId = null,
+            decimal? minPrice = null,
+            decimal? maxPrice = null,
+            string sortBy = "CreatedAt",
+            bool sortDescending = true);
+
+        Task<(IEnumerable<Product> Items, int TotalCount)> GetByCategoryPagedAsync(
+            int categoryId,
+            int pageNumber,
+            int pageSize);
     }
 }

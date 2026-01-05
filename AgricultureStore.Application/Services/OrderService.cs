@@ -1,3 +1,4 @@
+using AgricultureStore.Application.DTOs.Common;
 using AgricultureStore.Application.DTOs.OrderDTOs;
 using AgricultureStore.Domain.Entities;
 using AgricultureStore.Domain.Interfaces;
@@ -194,6 +195,41 @@ namespace AgricultureStore.Application.Services
                 startDate?.ToString("yyyy-MM-dd") ?? "N/A", endDate?.ToString("yyyy-MM-dd") ?? "N/A");
 
             return await _unitOfWork.Orders.GetTotalRevenueAsync(startDate, endDate);
+        }
+
+        public async Task<PagedResult<OrderListDto>> GetOrdersPagedAsync(OrderFilterParams filterParams)
+        {
+            _logger.LogDebug("Getting paged orders - Page: {PageNumber}, Size: {PageSize}, Status: {Status}",
+                filterParams.PageNumber, filterParams.PageSize, filterParams.Status);
+
+            var (orders, totalCount) = await _unitOfWork.Orders.GetOrdersPagedAsync(
+                filterParams.PageNumber,
+                filterParams.PageSize,
+                filterParams.Status,
+                filterParams.UserId,
+                filterParams.FromDate,
+                filterParams.ToDate,
+                filterParams.SortBy ?? "OrderDate",
+                filterParams.SortDescending);
+
+            var orderDtos = _mapper.Map<IEnumerable<OrderListDto>>(orders);
+
+            return new PagedResult<OrderListDto>(orderDtos, totalCount, filterParams.PageNumber, filterParams.PageSize);
+        }
+
+        public async Task<PagedResult<OrderListDto>> GetOrdersByUserIdPagedAsync(int userId, PaginationParams paginationParams)
+        {
+            _logger.LogDebug("Getting paged orders for user - UserId: {UserId}, Page: {PageNumber}",
+                userId, paginationParams.PageNumber);
+
+            var (orders, totalCount) = await _unitOfWork.Orders.GetByUserIdPagedAsync(
+                userId,
+                paginationParams.PageNumber,
+                paginationParams.PageSize);
+
+            var orderDtos = _mapper.Map<IEnumerable<OrderListDto>>(orders);
+
+            return new PagedResult<OrderListDto>(orderDtos, totalCount, paginationParams.PageNumber, paginationParams.PageSize);
         }
     }
 }

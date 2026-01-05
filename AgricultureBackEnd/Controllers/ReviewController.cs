@@ -1,3 +1,4 @@
+using AgricultureStore.Application.DTOs.Common;
 using AgricultureStore.Application.DTOs.ReviewDTOs;
 using AgricultureStore.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -23,6 +24,16 @@ namespace AgricultureBackEnd.Controllers
             return Ok(reviews);
         }
 
+        /// <summary>
+        /// Get reviews with pagination and filtering
+        /// </summary>
+        [HttpGet("paged")]
+        public async Task<ActionResult<PagedResult<ReviewDto>>> GetReviewsPaged([FromQuery] ReviewFilterParams filterParams)
+        {
+            var result = await _reviewService.GetReviewsPagedAsync(filterParams);
+            return Ok(result);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<ReviewDto>> GetReviewById(int id)
         {
@@ -46,6 +57,18 @@ namespace AgricultureBackEnd.Controllers
         {
             var reviews = await _reviewService.GetReviewsByProductIdAsync(productId);
             return Ok(reviews);
+        }
+
+        /// <summary>
+        /// Get reviews by product with pagination
+        /// </summary>
+        [HttpGet("review/product/{productId}/paged")]
+        public async Task<ActionResult<PagedResult<ReviewDto>>> GetReviewsByProductIdPaged(
+            int productId, 
+            [FromQuery] PaginationParams paginationParams)
+        {
+            var result = await _reviewService.GetReviewsByProductIdPagedAsync(productId, paginationParams);
+            return Ok(result);
         }
 
         [HttpGet("averageRating/{productId}")]

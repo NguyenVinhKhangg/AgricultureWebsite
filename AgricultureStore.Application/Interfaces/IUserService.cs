@@ -1,3 +1,4 @@
+using AgricultureStore.Application.DTOs.Common;
 using AgricultureStore.Application.DTOs.ProductDTOs;
 using AgricultureStore.Application.DTOs.UserDTOs;
 
@@ -15,6 +16,8 @@ namespace AgricultureStore.Application.Interfaces
         Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto changePasswordDto);
         Task<bool> UsernameExistsAsync(string username);
         Task<bool> EmailExistsAsync(string email);
-    }
 
+        // Paginated methods
+        Task<PagedResult<UserDto>> GetUsersPagedAsync(UserFilterParams filterParams);
+    }
 }

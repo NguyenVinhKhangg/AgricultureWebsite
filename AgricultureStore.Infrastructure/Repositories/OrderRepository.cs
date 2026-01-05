@@ -20,6 +20,8 @@ namespace AgricultureStore.Infrastructure.Repositories
                 .Include(o => o.Coupon)
                 .Where(o => o.UserId == userId)
                 .OrderByDescending(o => o.OrderDate)
+                .AsSplitQuery()
+                .AsNoTracking()
                 .ToListAsync();
         }
 
@@ -31,6 +33,7 @@ namespace AgricultureStore.Infrastructure.Repositories
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.ProductVariant)
                         .ThenInclude(pv => pv.Product)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(o => o.OrderId == orderId);
         }
 
@@ -41,6 +44,7 @@ namespace AgricultureStore.Infrastructure.Repositories
                 .Include(o => o.OrderDetails)
                 .Where(o => o.Status == status)
                 .OrderByDescending(o => o.OrderDate)
+                .AsNoTracking()
                 .ToListAsync();
         }
 
@@ -51,6 +55,7 @@ namespace AgricultureStore.Infrastructure.Repositories
                 .Include(o => o.OrderDetails)
                 .Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate)
                 .OrderByDescending(o => o.OrderDate)
+                .AsNoTracking()
                 .ToListAsync();
         }
 
@@ -76,6 +81,94 @@ namespace AgricultureStore.Infrastructure.Repositories
                 query = query.Where(o => o.OrderDate <= endDate.Value);
 
             return await query.SumAsync(o => o.TotalAmount);
+        }
+
+        public async Task<(IEnumerable<Order> Items, int TotalCount)> GetOrdersPagedAsync(
+            int pageNumber,
+            int pageSize,
+            string? status = null,
+            int? userId = null,
+            DateTime? fromDate = null,
+            DateTime? toDate = null,
+            string sortBy = "OrderDate",
+            bool sortDescending = true)
+        {
+            var query = _context.Orders
+                .Include(o => o.User)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.ProductVariant)
+                .Include(o => o.Coupon)
+                .AsSplitQuery()
+                .AsNoTracking()
+                .AsQueryable();
+
+            // Apply filters
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                query = query.Where(o => o.Status == status);
+            }
+
+            if (userId.HasValue)
+            {
+                query = query.Where(o => o.UserId == userId.Value);
+            }
+
+            if (fromDate.HasValue)
+            {
+                query = query.Where(o => o.OrderDate >= fromDate.Value);
+            }
+
+            if (toDate.HasValue)
+            {
+                query = query.Where(o => o.OrderDate <= toDate.Value);
+            }
+
+            // Get total count
+            var totalCount = await query.CountAsync();
+
+            // Apply sorting
+            query = sortBy.ToLower() switch
+            {
+                "totalamount" => sortDescending 
+                    ? query.OrderByDescending(o => o.TotalAmount) 
+                    : query.OrderBy(o => o.TotalAmount),
+                _ => sortDescending 
+                    ? query.OrderByDescending(o => o.OrderDate) 
+                    : query.OrderBy(o => o.OrderDate)
+            };
+
+            // Apply pagination
+            var items = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
+        public async Task<(IEnumerable<Order> Items, int TotalCount)> GetByUserIdPagedAsync(
+            int userId,
+            int pageNumber,
+            int pageSize)
+        {
+            var query = _context.Orders
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.ProductVariant)
+                        .ThenInclude(pv => pv.Product)
+                .Include(o => o.Coupon)
+                .Where(o => o.UserId == userId)
+                .AsSplitQuery()
+                .AsNoTracking();
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(o => o.OrderDate)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
         }
     }
 }

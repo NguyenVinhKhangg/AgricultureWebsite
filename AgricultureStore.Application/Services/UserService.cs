@@ -1,3 +1,4 @@
+using AgricultureStore.Application.DTOs.Common;
 using AgricultureStore.Application.DTOs.UserDTOs;
 using AgricultureStore.Domain.Entities;
 using AgricultureStore.Domain.Interfaces;
@@ -167,6 +168,25 @@ namespace AgricultureStore.Application.Services
         {
             _logger.LogDebug("Checking if email exists: {Email}", email);
             return await _unitOfWork.Users.EmailExistsAsync(email);
+        }
+
+        public async Task<PagedResult<UserDto>> GetUsersPagedAsync(UserFilterParams filterParams)
+        {
+            _logger.LogDebug("Getting paged users - Page: {PageNumber}, Size: {PageSize}, Search: {SearchTerm}",
+                filterParams.PageNumber, filterParams.PageSize, filterParams.SearchTerm);
+
+            var (users, totalCount) = await _unitOfWork.Users.GetUsersPagedAsync(
+                filterParams.PageNumber,
+                filterParams.PageSize,
+                filterParams.SearchTerm,
+                filterParams.Role,
+                filterParams.IsActive,
+                filterParams.SortBy ?? "CreatedAt",
+                filterParams.SortDescending);
+
+            var userDtos = _mapper.Map<IEnumerable<UserDto>>(users);
+
+            return new PagedResult<UserDto>(userDtos, totalCount, filterParams.PageNumber, filterParams.PageSize);
         }
     }
 }

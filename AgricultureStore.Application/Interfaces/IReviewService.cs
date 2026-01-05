@@ -1,3 +1,4 @@
+using AgricultureStore.Application.DTOs.Common;
 using AgricultureStore.Application.DTOs.ReviewDTOs;
 
 namespace AgricultureStore.Application.Interfaces
@@ -13,5 +14,9 @@ namespace AgricultureStore.Application.Interfaces
         Task<bool> UpdateReviewAsync(int id, UpdateReviewDto updateDto);
         Task<bool> DeleteReviewAsync(int id);
         Task<bool> CanUserReviewProductAsync(int userId, int productId);
+
+        // Paginated methods
+        Task<PagedResult<ReviewDto>> GetReviewsPagedAsync(ReviewFilterParams filterParams);
+        Task<PagedResult<ReviewDto>> GetReviewsByProductIdPagedAsync(int productId, PaginationParams paginationParams);
     }
 }

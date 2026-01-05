@@ -1,3 +1,4 @@
+using AgricultureStore.Application.DTOs.Common;
 using AgricultureStore.Application.DTOs.OrderDTOs;
 using AgricultureStore.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -29,6 +30,17 @@ namespace AgricultureBackEnd.Controllers
         }
 
         /// <summary>
+        /// Lấy orders với pagination và filtering
+        /// </summary>
+        [HttpGet("paged")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<PagedResult<OrderListDto>>> GetOrdersPaged([FromQuery] OrderFilterParams filterParams)
+        {
+            var result = await _orderService.GetOrdersPagedAsync(filterParams);
+            return Ok(result);
+        }
+
+        /// <summary>
         /// Lấy order theo ID với details
         /// </summary>
         [HttpGet("{id}")]
@@ -53,6 +65,18 @@ namespace AgricultureBackEnd.Controllers
         {
             var orders = await _orderService.GetOrdersByUserIdAsync(userId);
             return Ok(orders);
+        }
+
+        /// <summary>
+        /// Lấy orders theo user ID với pagination
+        /// </summary>
+        [HttpGet("user/{userId}/paged")]
+        public async Task<ActionResult<PagedResult<OrderListDto>>> GetOrdersByUserIdPaged(
+            int userId, 
+            [FromQuery] PaginationParams paginationParams)
+        {
+            var result = await _orderService.GetOrdersByUserIdPagedAsync(userId, paginationParams);
+            return Ok(result);
         }
 
         /// <summary>
