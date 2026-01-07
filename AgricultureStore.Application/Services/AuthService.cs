@@ -2,8 +2,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using AgricultureStore.Application.DTOs.AuthDTOs;
+using AgricultureStore.Application.Exceptions;
 using AgricultureStore.Application.Interfaces;
 using AgricultureStore.Application.Settings;
+using AgricultureStore.Domain.Entities;
 using AgricultureStore.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -25,6 +27,54 @@ namespace AgricultureStore.Application.Services
             _unitOfWork = unitOfWork;
             _logger = logger;
             _jwtSettings = jwtSettings.Value;
+        }
+
+        public async Task<RegisterResponseDto> RegisterAsync(RegisterDto registerDto)
+        {
+            _logger.LogInformation("Registration attempt for username: {Username}, email: {Email}", 
+                registerDto.UserName, registerDto.Email);
+
+            // Check if username already exists
+            if (await _unitOfWork.Users.UsernameExistsAsync(registerDto.UserName))
+            {
+                _logger.LogWarning("Registration failed - username already exists: {Username}", registerDto.UserName);
+                throw new DuplicateException($"Username '{registerDto.UserName}' is already taken");
+            }
+
+            // Check if email already exists
+            if (await _unitOfWork.Users.EmailExistsAsync(registerDto.Email))
+            {
+                _logger.LogWarning("Registration failed - email already exists: {Email}", registerDto.Email);
+                throw new DuplicateException($"Email '{registerDto.Email}' is already registered");
+            }
+
+            // Create new user with default role (User = 2)
+            var user = new User
+            {
+                FullName = registerDto.FullName,
+                UserName = registerDto.UserName,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password),
+                Email = registerDto.Email,
+                Phone = registerDto.Phone,
+                RoleId = 2, // Default role: User
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _unitOfWork.Users.AddAsync(user);
+            await _unitOfWork.SaveChangesAsync();
+
+            _logger.LogInformation("User registered successfully - UserId: {UserId}, Username: {Username}", 
+                user.UserId, user.UserName);
+
+            return new RegisterResponseDto
+            {
+                UserId = user.UserId,
+                UserName = user.UserName,
+                Email = user.Email,
+                FullName = user.FullName,
+                Message = "Registration successful"
+            };
         }
 
         public async Task<LoginResponseDto?> LoginAsync(LoginDto loginDto)

@@ -8,7 +8,8 @@ namespace AgricultureStore.Application.Interfaces
 {
     public interface IAuthService
     {
-        Task<LoginResponseDto> LoginAsync(LoginDto loginDto);
+        Task<LoginResponseDto?> LoginAsync(LoginDto loginDto);
+        Task<RegisterResponseDto> RegisterAsync(RegisterDto registerDto);
         Task<string> GenerateJwtTokenAsync(int userId, string username, string roleName);
     }
 }

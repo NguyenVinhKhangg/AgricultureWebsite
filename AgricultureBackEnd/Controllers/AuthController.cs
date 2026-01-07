@@ -16,6 +16,16 @@ namespace AgricultureBackEnd.Controllers
         }
 
         /// <summary>
+        /// Register a new user account
+        /// </summary>
+        [HttpPost("register")]
+        public async Task<ActionResult<RegisterResponseDto>> Register([FromBody] RegisterDto registerDto)
+        {
+            var response = await _authService.RegisterAsync(registerDto);
+            return CreatedAtAction(nameof(Register), new { id = response.UserId }, response);
+        }
+
+        /// <summary>
         /// Login user và nhận JWT token
         /// </summary>
         [HttpPost("login")]
