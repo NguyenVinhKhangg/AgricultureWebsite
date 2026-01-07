@@ -84,6 +84,12 @@ namespace AgricultureBackEnd
                 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
                 var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
 
+                // Configure Settings
+                builder.Services.Configure<AgricultureStore.Application.Settings.JwtSettings>(
+                    builder.Configuration.GetSection("JwtSettings"));
+                builder.Services.Configure<AgricultureStore.Application.Settings.EmailSettings>(
+                    builder.Configuration.GetSection("EmailSettings"));
+
                 builder.Services.AddAuthentication(options =>
                 {
                     options.DefaultAuthenticateScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
@@ -160,6 +166,7 @@ namespace AgricultureBackEnd
                 builder.Services.AddScoped<ICouponService, CouponService>();
                 builder.Services.AddScoped<IUserAddressService, UserAddressService>();
                 builder.Services.AddScoped<IAuthService, AuthService>();
+                builder.Services.AddScoped<IEmailService, EmailService>();
 
 
                 // Global exception handling

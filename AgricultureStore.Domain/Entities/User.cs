@@ -13,6 +13,15 @@ namespace AgricultureStore.Domain.Entities
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        // Email verification
+        public bool EmailConfirmed { get; set; } = false;
+        public string? EmailConfirmationToken { get; set; }
+        public DateTime? EmailConfirmationTokenExpiry { get; set; }
+
+        // Password reset
+        public string? PasswordResetToken { get; set; }
+        public DateTime? PasswordResetTokenExpiry { get; set; }
+
         // Navigation properties
         public Role? Role { get; set; }
         public ICollection<Order> Orders { get; set; } = new List<Order>();
