@@ -5,6 +5,7 @@ namespace AgricultureStore.Domain.Interfaces
         IUserRepository Users { get; }
         IRoleRepository Roles { get; }
         IUserAddressRepository UserAddresses { get; }
+        IUserTokenRepository UserTokens { get; }
         IProductRepository Products { get; }
         ICategoryRepository Categories { get; }
         IProductVariantRepository ProductVariants { get; }

@@ -13,6 +13,7 @@ namespace AgricultureStore.Infrastructure.Data
         public DbSet<Role> Roles { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserAddress> UserAddresses { get; set; }
+        public DbSet<UserToken> UserTokens { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductVariant> ProductVariants { get; set; }
@@ -67,6 +68,29 @@ namespace AgricultureStore.Infrastructure.Data
 
                 entity.HasOne(e => e.User)
                     .WithMany(u => u.UserAddresses)
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // UserToken configuration
+            modelBuilder.Entity<UserToken>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.Token).HasMaxLength(500).IsRequired();
+                entity.Property(e => e.TokenType).IsRequired();
+                entity.Property(e => e.DeviceInfo).HasMaxLength(500);
+                entity.Property(e => e.IpAddress).HasMaxLength(50);
+                entity.Property(e => e.ExpiresAt).HasColumnType("datetime2");
+                entity.Property(e => e.CreatedAt).HasColumnType("datetime2");
+                entity.Property(e => e.UsedAt).HasColumnType("datetime2");
+                entity.Property(e => e.RevokedAt).HasColumnType("datetime2");
+
+                entity.HasIndex(e => e.Token);
+                entity.HasIndex(e => new { e.UserId, e.TokenType });
+
+                entity.HasOne(e => e.User)
+                    .WithMany(u => u.UserTokens)
                     .HasForeignKey(e => e.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });

@@ -11,6 +11,7 @@ namespace AgricultureStore.Domain.Entities
         public string? Address { get; set; }
         public int RoleId { get; set; }
         public bool IsActive { get; set; } = true;
+        public bool EmailConfirmed { get; set; } = false;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation properties
@@ -19,5 +20,6 @@ namespace AgricultureStore.Domain.Entities
         public ICollection<UserAddress> UserAddresses { get; set; } = new List<UserAddress>();
         public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
+        public ICollection<UserToken> UserTokens { get; set; } = new List<UserToken>();
     }
 }

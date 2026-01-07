@@ -1,9 +1,12 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using AgricultureStore.Application.DTOs.AuthDTOs;
+using AgricultureStore.Application.Exceptions;
 using AgricultureStore.Application.Interfaces;
 using AgricultureStore.Application.Settings;
+using AgricultureStore.Domain.Entities;
 using AgricultureStore.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -16,15 +19,245 @@ namespace AgricultureStore.Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<AuthService> _logger;
         private readonly JwtSettings _jwtSettings;
+        private readonly IEmailService _emailService;
 
         public AuthService(
             IUnitOfWork unitOfWork, 
             ILogger<AuthService> logger,
-            IOptions<JwtSettings> jwtSettings)
+            IOptions<JwtSettings> jwtSettings,
+            IEmailService emailService)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _jwtSettings = jwtSettings.Value;
+            _emailService = emailService;
+        }
+
+        public async Task<RegisterResponseDto> RegisterAsync(RegisterDto registerDto)
+        {
+            _logger.LogInformation("Registration attempt for username: {Username}, email: {Email}", 
+                registerDto.UserName, registerDto.Email);
+
+            // Check if username already exists
+            if (await _unitOfWork.Users.UsernameExistsAsync(registerDto.UserName))
+            {
+                _logger.LogWarning("Registration failed - username already exists: {Username}", registerDto.UserName);
+                throw new DuplicateException($"Username '{registerDto.UserName}' is already taken");
+            }
+
+            // Check if email already exists
+            if (await _unitOfWork.Users.EmailExistsAsync(registerDto.Email))
+            {
+                _logger.LogWarning("Registration failed - email already exists: {Email}", registerDto.Email);
+                throw new DuplicateException($"Email '{registerDto.Email}' is already registered");
+            }
+
+            // Create new user with default role (User = 2)
+            var user = new User
+            {
+                FullName = registerDto.FullName,
+                UserName = registerDto.UserName,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password),
+                Email = registerDto.Email,
+                Phone = registerDto.Phone,
+                RoleId = 2, // Default role: User
+                IsActive = true,
+                EmailConfirmed = false,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _unitOfWork.Users.AddAsync(user);
+            await _unitOfWork.SaveChangesAsync();
+
+            // Generate and save email confirmation token
+            var confirmationToken = GenerateSecureToken();
+            var userToken = new UserToken
+            {
+                UserId = user.UserId,
+                Token = confirmationToken,
+                TokenType = TokenType.EmailVerification,
+                ExpiresAt = DateTime.UtcNow.AddHours(24),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _unitOfWork.UserTokens.AddAsync(userToken);
+            await _unitOfWork.SaveChangesAsync();
+
+            // Send confirmation email
+            await _emailService.SendEmailConfirmationAsync(user.Email, user.UserName, confirmationToken);
+
+            _logger.LogInformation("User registered successfully - UserId: {UserId}, Username: {Username}", 
+                user.UserId, user.UserName);
+
+            return new RegisterResponseDto
+            {
+                UserId = user.UserId,
+                UserName = user.UserName,
+                Email = user.Email,
+                FullName = user.FullName,
+                Message = "Registration successful. Please check your email to confirm your account."
+            };
+        }
+
+        public async Task<bool> ConfirmEmailAsync(ConfirmEmailDto confirmEmailDto)
+        {
+            _logger.LogInformation("Email confirmation attempt for: {Email}", confirmEmailDto.Email);
+
+            var user = await _unitOfWork.Users.GetByEmailAsync(confirmEmailDto.Email);
+            
+            if (user == null)
+            {
+                _logger.LogWarning("Email confirmation failed - user not found: {Email}", confirmEmailDto.Email);
+                throw new NotFoundException("User not found");
+            }
+
+            if (user.EmailConfirmed)
+            {
+                _logger.LogWarning("Email already confirmed for: {Email}", confirmEmailDto.Email);
+                throw new BadRequestException("Email is already confirmed");
+            }
+
+            var userToken = await _unitOfWork.UserTokens.GetByTokenAsync(confirmEmailDto.Token, TokenType.EmailVerification);
+
+            if (userToken == null || userToken.UserId != user.UserId)
+            {
+                _logger.LogWarning("Invalid confirmation token for: {Email}", confirmEmailDto.Email);
+                throw new BadRequestException("Invalid confirmation token");
+            }
+
+            if (!userToken.IsActive)
+            {
+                _logger.LogWarning("Confirmation token expired or already used for: {Email}", confirmEmailDto.Email);
+                throw new BadRequestException("Confirmation token has expired or already used. Please request a new one.");
+            }
+
+            // Mark token as used
+            await _unitOfWork.UserTokens.MarkTokenAsUsedAsync(confirmEmailDto.Token);
+
+            // Confirm email
+            user.EmailConfirmed = true;
+            await _unitOfWork.Users.UpdateAsync(user);
+            await _unitOfWork.SaveChangesAsync();
+
+            _logger.LogInformation("Email confirmed successfully for: {Email}", confirmEmailDto.Email);
+            return true;
+        }
+
+        public async Task<bool> ResendConfirmationEmailAsync(string email)
+        {
+            _logger.LogInformation("Resend confirmation email request for: {Email}", email);
+
+            var user = await _unitOfWork.Users.GetByEmailAsync(email);
+            
+            if (user == null)
+            {
+                _logger.LogWarning("Resend confirmation failed - user not found: {Email}", email);
+                throw new NotFoundException("User not found");
+            }
+
+            if (user.EmailConfirmed)
+            {
+                _logger.LogWarning("Email already confirmed for: {Email}", email);
+                throw new BadRequestException("Email is already confirmed");
+            }
+
+            // Revoke all existing email verification tokens for this user
+            await _unitOfWork.UserTokens.RevokeAllUserTokensAsync(user.UserId, TokenType.EmailVerification);
+
+            // Generate and save new token
+            var newToken = GenerateSecureToken();
+            var userToken = new UserToken
+            {
+                UserId = user.UserId,
+                Token = newToken,
+                TokenType = TokenType.EmailVerification,
+                ExpiresAt = DateTime.UtcNow.AddHours(24),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _unitOfWork.UserTokens.AddAsync(userToken);
+            await _unitOfWork.SaveChangesAsync();
+
+            // Send new confirmation email
+            await _emailService.SendEmailConfirmationAsync(user.Email!, user.UserName, newToken);
+
+            _logger.LogInformation("Confirmation email resent to: {Email}", email);
+            return true;
+        }
+
+        public async Task<bool> ForgotPasswordAsync(ForgotPasswordDto forgotPasswordDto)
+        {
+            _logger.LogInformation("Password reset request for: {Email}", forgotPasswordDto.Email);
+
+            var user = await _unitOfWork.Users.GetByEmailAsync(forgotPasswordDto.Email);
+            
+            if (user == null)
+            {
+                // Don't reveal that the user doesn't exist for security reasons
+                _logger.LogWarning("Password reset requested for non-existent email: {Email}", forgotPasswordDto.Email);
+                return true; // Return true to not reveal if email exists
+            }
+
+            // Revoke all existing password reset tokens for this user
+            await _unitOfWork.UserTokens.RevokeAllUserTokensAsync(user.UserId, TokenType.PasswordReset);
+
+            // Generate and save new token
+            var resetToken = GenerateSecureToken();
+            var userToken = new UserToken
+            {
+                UserId = user.UserId,
+                Token = resetToken,
+                TokenType = TokenType.PasswordReset,
+                ExpiresAt = DateTime.UtcNow.AddHours(1),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _unitOfWork.UserTokens.AddAsync(userToken);
+            await _unitOfWork.SaveChangesAsync();
+
+            // Send password reset email
+            await _emailService.SendPasswordResetAsync(user.Email!, user.UserName, resetToken);
+
+            _logger.LogInformation("Password reset email sent to: {Email}", forgotPasswordDto.Email);
+            return true;
+        }
+
+        public async Task<bool> ResetPasswordAsync(ResetPasswordDto resetPasswordDto)
+        {
+            _logger.LogInformation("Password reset attempt for: {Email}", resetPasswordDto.Email);
+
+            var user = await _unitOfWork.Users.GetByEmailAsync(resetPasswordDto.Email);
+            
+            if (user == null)
+            {
+                _logger.LogWarning("Password reset failed - user not found: {Email}", resetPasswordDto.Email);
+                throw new NotFoundException("User not found");
+            }
+
+            var userToken = await _unitOfWork.UserTokens.GetByTokenAsync(resetPasswordDto.Token, TokenType.PasswordReset);
+
+            if (userToken == null || userToken.UserId != user.UserId)
+            {
+                _logger.LogWarning("Invalid reset token for: {Email}", resetPasswordDto.Email);
+                throw new BadRequestException("Invalid reset token");
+            }
+
+            if (!userToken.IsActive)
+            {
+                _logger.LogWarning("Reset token expired or already used for: {Email}", resetPasswordDto.Email);
+                throw new BadRequestException("Reset token has expired or already used. Please request a new one.");
+            }
+
+            // Mark token as used
+            await _unitOfWork.UserTokens.MarkTokenAsUsedAsync(resetPasswordDto.Token);
+
+            // Update password
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(resetPasswordDto.NewPassword);
+            await _unitOfWork.Users.UpdateAsync(user);
+            await _unitOfWork.SaveChangesAsync();
+
+            _logger.LogInformation("Password reset successfully for: {Email}", resetPasswordDto.Email);
+            return true;
         }
 
         public async Task<LoginResponseDto?> LoginAsync(LoginDto loginDto)
@@ -90,6 +323,17 @@ namespace AgricultureStore.Application.Services
             );
 
             return await Task.FromResult(new JwtSecurityTokenHandler().WriteToken(token));
+        }
+
+        private static string GenerateSecureToken()
+        {
+            var randomBytes = new byte[32];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomBytes);
+            return Convert.ToBase64String(randomBytes)
+                .Replace("+", "-")
+                .Replace("/", "_")
+                .Replace("=", "");
         }
     }
 }
