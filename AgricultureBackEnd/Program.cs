@@ -143,6 +143,7 @@ namespace AgricultureBackEnd
                 builder.Services.AddScoped<IUserRepository, UserRepository>();
                 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
                 builder.Services.AddScoped<IUserAddressRepository, UserAddressRepository>();
+                builder.Services.AddScoped<IUserTokenRepository, UserTokenRepository>();
                 builder.Services.AddScoped<IProductRepository, ProductRepository>();
                 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
                 builder.Services.AddScoped<IProductVariantRepository, ProductVariantRepository>();

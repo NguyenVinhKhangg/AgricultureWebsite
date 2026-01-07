@@ -12,6 +12,7 @@ namespace AgricultureStore.Infrastructure.Repositories
         public IUserRepository Users { get; }
         public IRoleRepository Roles { get; }
         public IUserAddressRepository UserAddresses { get; }
+        public IUserTokenRepository UserTokens { get; }
         public IProductRepository Products { get; }
         public ICategoryRepository Categories { get; }
         public IProductVariantRepository ProductVariants { get; }
@@ -26,6 +27,7 @@ namespace AgricultureStore.Infrastructure.Repositories
             IUserRepository userRepository,
             IRoleRepository roleRepository,
             IUserAddressRepository userAddressRepository,
+            IUserTokenRepository userTokenRepository,
             IProductRepository productRepository,
             ICategoryRepository categoryRepository,
             IProductVariantRepository productVariantRepository,
@@ -39,6 +41,7 @@ namespace AgricultureStore.Infrastructure.Repositories
             Users = userRepository;
             Roles = roleRepository;
             UserAddresses = userAddressRepository;
+            UserTokens = userTokenRepository;
             Products = productRepository;
             Categories = categoryRepository;
             ProductVariants = productVariantRepository;

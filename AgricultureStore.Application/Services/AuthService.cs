@@ -52,9 +52,6 @@ namespace AgricultureStore.Application.Services
                 throw new DuplicateException($"Email '{registerDto.Email}' is already registered");
             }
 
-            // Generate email confirmation token
-            var confirmationToken = GenerateSecureToken();
-
             // Create new user with default role (User = 2)
             var user = new User
             {
@@ -66,12 +63,24 @@ namespace AgricultureStore.Application.Services
                 RoleId = 2, // Default role: User
                 IsActive = true,
                 EmailConfirmed = false,
-                EmailConfirmationToken = confirmationToken,
-                EmailConfirmationTokenExpiry = DateTime.UtcNow.AddHours(24),
                 CreatedAt = DateTime.UtcNow
             };
 
             await _unitOfWork.Users.AddAsync(user);
+            await _unitOfWork.SaveChangesAsync();
+
+            // Generate and save email confirmation token
+            var confirmationToken = GenerateSecureToken();
+            var userToken = new UserToken
+            {
+                UserId = user.UserId,
+                Token = confirmationToken,
+                TokenType = TokenType.EmailVerification,
+                ExpiresAt = DateTime.UtcNow.AddHours(24),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _unitOfWork.UserTokens.AddAsync(userToken);
             await _unitOfWork.SaveChangesAsync();
 
             // Send confirmation email
@@ -108,22 +117,25 @@ namespace AgricultureStore.Application.Services
                 throw new BadRequestException("Email is already confirmed");
             }
 
-            if (user.EmailConfirmationToken != confirmEmailDto.Token)
+            var userToken = await _unitOfWork.UserTokens.GetByTokenAsync(confirmEmailDto.Token, TokenType.EmailVerification);
+
+            if (userToken == null || userToken.UserId != user.UserId)
             {
                 _logger.LogWarning("Invalid confirmation token for: {Email}", confirmEmailDto.Email);
                 throw new BadRequestException("Invalid confirmation token");
             }
 
-            if (user.EmailConfirmationTokenExpiry < DateTime.UtcNow)
+            if (!userToken.IsActive)
             {
-                _logger.LogWarning("Confirmation token expired for: {Email}", confirmEmailDto.Email);
-                throw new BadRequestException("Confirmation token has expired. Please request a new one.");
+                _logger.LogWarning("Confirmation token expired or already used for: {Email}", confirmEmailDto.Email);
+                throw new BadRequestException("Confirmation token has expired or already used. Please request a new one.");
             }
 
-            user.EmailConfirmed = true;
-            user.EmailConfirmationToken = null;
-            user.EmailConfirmationTokenExpiry = null;
+            // Mark token as used
+            await _unitOfWork.UserTokens.MarkTokenAsUsedAsync(confirmEmailDto.Token);
 
+            // Confirm email
+            user.EmailConfirmed = true;
             await _unitOfWork.Users.UpdateAsync(user);
             await _unitOfWork.SaveChangesAsync();
 
@@ -149,12 +161,21 @@ namespace AgricultureStore.Application.Services
                 throw new BadRequestException("Email is already confirmed");
             }
 
-            // Generate new token
-            var newToken = GenerateSecureToken();
-            user.EmailConfirmationToken = newToken;
-            user.EmailConfirmationTokenExpiry = DateTime.UtcNow.AddHours(24);
+            // Revoke all existing email verification tokens for this user
+            await _unitOfWork.UserTokens.RevokeAllUserTokensAsync(user.UserId, TokenType.EmailVerification);
 
-            await _unitOfWork.Users.UpdateAsync(user);
+            // Generate and save new token
+            var newToken = GenerateSecureToken();
+            var userToken = new UserToken
+            {
+                UserId = user.UserId,
+                Token = newToken,
+                TokenType = TokenType.EmailVerification,
+                ExpiresAt = DateTime.UtcNow.AddHours(24),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _unitOfWork.UserTokens.AddAsync(userToken);
             await _unitOfWork.SaveChangesAsync();
 
             // Send new confirmation email
@@ -177,12 +198,21 @@ namespace AgricultureStore.Application.Services
                 return true; // Return true to not reveal if email exists
             }
 
-            // Generate password reset token
-            var resetToken = GenerateSecureToken();
-            user.PasswordResetToken = resetToken;
-            user.PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1);
+            // Revoke all existing password reset tokens for this user
+            await _unitOfWork.UserTokens.RevokeAllUserTokensAsync(user.UserId, TokenType.PasswordReset);
 
-            await _unitOfWork.Users.UpdateAsync(user);
+            // Generate and save new token
+            var resetToken = GenerateSecureToken();
+            var userToken = new UserToken
+            {
+                UserId = user.UserId,
+                Token = resetToken,
+                TokenType = TokenType.PasswordReset,
+                ExpiresAt = DateTime.UtcNow.AddHours(1),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _unitOfWork.UserTokens.AddAsync(userToken);
             await _unitOfWork.SaveChangesAsync();
 
             // Send password reset email
@@ -204,22 +234,25 @@ namespace AgricultureStore.Application.Services
                 throw new NotFoundException("User not found");
             }
 
-            if (user.PasswordResetToken != resetPasswordDto.Token)
+            var userToken = await _unitOfWork.UserTokens.GetByTokenAsync(resetPasswordDto.Token, TokenType.PasswordReset);
+
+            if (userToken == null || userToken.UserId != user.UserId)
             {
                 _logger.LogWarning("Invalid reset token for: {Email}", resetPasswordDto.Email);
                 throw new BadRequestException("Invalid reset token");
             }
 
-            if (user.PasswordResetTokenExpiry < DateTime.UtcNow)
+            if (!userToken.IsActive)
             {
-                _logger.LogWarning("Reset token expired for: {Email}", resetPasswordDto.Email);
-                throw new BadRequestException("Reset token has expired. Please request a new one.");
+                _logger.LogWarning("Reset token expired or already used for: {Email}", resetPasswordDto.Email);
+                throw new BadRequestException("Reset token has expired or already used. Please request a new one.");
             }
 
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(resetPasswordDto.NewPassword);
-            user.PasswordResetToken = null;
-            user.PasswordResetTokenExpiry = null;
+            // Mark token as used
+            await _unitOfWork.UserTokens.MarkTokenAsUsedAsync(resetPasswordDto.Token);
 
+            // Update password
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(resetPasswordDto.NewPassword);
             await _unitOfWork.Users.UpdateAsync(user);
             await _unitOfWork.SaveChangesAsync();
 
