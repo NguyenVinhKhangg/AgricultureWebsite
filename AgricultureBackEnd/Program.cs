@@ -136,6 +136,19 @@ namespace AgricultureBackEnd
                               .AllowCredentials();
                     });
                 });
+
+                // Rate limiting
+                builder.Services.AddRateLimiter(options =>
+                {
+                    options.AddFixedWindowLimiter("auth", options =>
+                    {
+                        options.PermitLimit = 5;
+                        options.Window = TimeSpan.FromMinutes(1);
+                        options.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
+                        options.QueueLimit = 0;
+                    });
+                });
+            
                 // Auto Mapper Configurations
                 builder.Services.AddAutoMapper(typeof(MappingProfile));
 

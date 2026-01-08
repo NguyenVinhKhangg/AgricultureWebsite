@@ -69,6 +69,7 @@ namespace AgricultureBackEnd.Controllers
         /// Login user và nhận JWT token
         /// </summary>
         [HttpPost("login")]
+        [EnableRateLimiting("auth")]
         public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginDto loginDto)
         {
             var response = await _authService.LoginAsync(loginDto);
